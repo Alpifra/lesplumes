@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -44,4 +46,21 @@ class User extends Authenticatable
         'created_at' => 'datetime',
         'password'   => 'hashed',
     ];
+
+
+    /**
+     * The rounds where user is attached as master.
+     */
+    public function masterRounds(): HasMany
+    {
+        return $this->hasMany(related: Round::class, foreignKey: 'master_id', localKey: 'id');
+    }
+
+    /**
+     * The rounds where user is attached as participant.
+     */
+    public function participantRounds(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
 }
