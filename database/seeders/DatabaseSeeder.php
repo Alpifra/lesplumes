@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User;
 use App\Models\Round;
+use App\Models\Story;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,8 +17,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory(10)->create();
-        Round::factory(30)
+        Round::factory(10)
             ->has(User::factory()->count(5), 'participants')
+            ->has(Story::factory()->count(5), 'roundStories')
             ->create();
 
         User::factory()->create([

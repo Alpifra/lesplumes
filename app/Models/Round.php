@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Round extends Model
 {
@@ -37,6 +38,14 @@ class Round extends Model
     public function master(): BelongsTo
     {
         return $this->belongsTo(User::class, foreignKey: 'master_id', ownerKey: 'id');
+    }
+
+    /**
+     * The stories attached to a round.
+     */
+    public function roundStories(): HasMany
+    {
+        return $this->hasMany(related: Story::class, foreignKey: 'round_id', localKey: 'id');
     }
 
     /**

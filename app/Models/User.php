@@ -3,12 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Story;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -47,13 +48,20 @@ class User extends Authenticatable
         'password'   => 'hashed',
     ];
 
-
     /**
      * The rounds where user is attached as master.
      */
     public function masterRounds(): HasMany
     {
         return $this->hasMany(related: Round::class, foreignKey: 'master_id', localKey: 'id');
+    }
+
+    /**
+     * The stories where user is attached as writer.
+     */
+    public function writerStories(): HasMany
+    {
+        return $this->hasMany(related: Story::class, foreignKey: 'writer_id', localKey: 'id');
     }
 
     /**
