@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
     {
         User::factory(10)->create();
         Round::factory(10)
-            ->has(User::factory()->count(5), 'participants')
-            ->has(Story::factory()->count(5), 'roundStories')
+            ->has(User::factory()->count(4), 'participants')
+            ->has(Story::factory()->count(4), 'roundStories')
             ->create();
 
         User::factory()->create([
