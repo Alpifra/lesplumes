@@ -46,8 +46,8 @@ return [
 
         'medias' => [
             'driver' => 'local',
-            'root' => storage_path('app/uploads/stories'),
-            'url' => env('APP_URL').'/uploads/stories',
+            'root' => storage_path('app/uploads'),
+            'url' => env('APP_URL').'/uploads',
             'visibility' => 'public',
             'throw' => false,
         ],

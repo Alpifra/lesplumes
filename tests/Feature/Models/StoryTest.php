@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\Media;
 use Tests\TestCase;
+use App\Models\Media;
 use App\Models\User;
 use App\Models\Round;
 use App\Models\Story;

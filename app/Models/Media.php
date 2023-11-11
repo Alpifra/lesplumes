@@ -9,5 +9,7 @@ class Media extends MediableMedia
 {
     use HasFactory;
 
+    public const STORY_MEDIA_DIRECTORY = 'stories';
+
     protected $table = 'medias';
 }

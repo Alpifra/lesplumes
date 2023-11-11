@@ -2,9 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use Plank\Mediable\Media as MediableMedia;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Media>
@@ -18,20 +21,31 @@ class MediaFactory extends Factory
      */
     public function definition(): array
     {
-        $name = uniqid();
-        $extension = '.pdf';
-        $fake_pdf = file_get_contents(storage_path('framework/testing/fake.pdf'));
-        $target_disk = Config::get('mediable.default_disk');
-        Storage::disk($target_disk)->put($name . $extension, $fake_pdf);
+
+        $file = self::createFile();
+        $extension = $file->getExtension();
+        $name = str_replace(".{$extension}", '', $file->getFilename());
 
         return [
-            'disk'           => $target_disk,
-            'directory'      => 'stories',
+            'disk'           => Config::get('mediable.default_disk'),
+            'directory'      => Media::STORY_MEDIA_DIRECTORY,
             'filename'       => $name,
             'extension'      => $extension,
             'mime_type'      => 'application/pdf',
             'aggregate_type' => $extension,
-            'size'           => strlen($fake_pdf),
+            'size'           => $file->getSize(),
         ];
+    }
+
+    public static function createFile(): UploadedFile
+    {
+        $fake_pdf = new UploadedFile(storage_path('framework/testing/fake.pdf'), 'fake.pdf');
+        $target_disk = Config::get('mediable.default_disk');
+        $target_disk_path = Media::STORY_MEDIA_DIRECTORY . '/';
+        $filename = uniqid() . '.' . MediableMedia::TYPE_PDF;
+        $disk_filepath = $target_disk_path . $filename;
+        Storage::disk($target_disk)->put($disk_filepath, $fake_pdf->getContent());
+
+        return new UploadedFile(storage_path("app/uploads/stories/{$filename}"), $filename);
     }
 }
