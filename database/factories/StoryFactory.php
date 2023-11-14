@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Media;
 use App\Models\Round;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +21,6 @@ class StoryFactory extends Factory
         return [
             'round_id'  => Round::factory(),
             'writer_id' => User::factory(),
-            'media_id'  => Media::factory(),
         ];
     }
 }

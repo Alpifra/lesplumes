@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\User;
+use App\Models\Media;
 use App\Models\Round;
 use App\Models\Story;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,7 +20,9 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
         Round::factory(10)
             ->has(User::factory()->count(4), 'participants')
-            ->has(Story::factory()->count(4), 'roundStories')
+            ->has(Story::factory()
+                ->has(Media::factory())
+            ->count(4), 'roundStories')
             ->create();
 
         User::factory()->create([

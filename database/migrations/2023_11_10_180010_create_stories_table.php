@@ -21,15 +21,6 @@ return new class extends Migration
                   ->constrained(table: 'users')
                   ->cascadeOnUpdate()
                   ->cascadeOnDelete();
-            // set media_id relation in keeping with package medias table
-            $table->integer('media_id')
-                  ->nullable()
-                  ->unsigned();
-            $table->foreign('media_id')
-                  ->references('id')
-                  ->on('medias')
-                  ->cascadeOnUpdate()
-                  ->nullOnDelete();
             $table->timestamps();
         });
     }

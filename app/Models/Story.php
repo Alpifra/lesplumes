@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Story extends Model
 {
@@ -29,8 +30,8 @@ class Story extends Model
     /**
      * The media attached to a story.
      */
-    public function media(): BelongsTo
+    public function media(): HasOne
     {
-        return $this->belongsTo(Media::class, foreignKey: 'media_id', ownerKey: 'id');
+        return $this->hasOne(Media::class);
     }
 }

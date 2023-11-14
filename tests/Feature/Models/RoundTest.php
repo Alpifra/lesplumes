@@ -2,10 +2,11 @@
 
 namespace Tests\Feature\Models;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Round;
+use App\Models\Story;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class RoundTest extends TestCase
 {
@@ -76,10 +77,15 @@ class RoundTest extends TestCase
      */
     public function delete_model()
     {
-        Round::factory(1)->create();
+        Round::factory(1)
+            ->has(User::factory(4), 'participants')
+            ->has(Story::factory(4), 'roundStories')
+            ->create();
         $round = Round::all()->first();
         $round->delete();
 
         self::assertEmpty(Round::all());
+        self::assertNotEmpty(User::all());
+        self::assertEmpty(Story::all());
     }
 }

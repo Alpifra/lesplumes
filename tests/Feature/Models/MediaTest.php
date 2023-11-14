@@ -3,6 +3,7 @@
 namespace Tests\Feature\Models;
 
 use App\Models\Media;
+use App\Models\Story;
 use Database\Factories\MediaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -28,6 +29,7 @@ class MediaTest extends TestCase
         $file = MediaFactory::createFile();
         $extension = $file->getExtension();
         $name = str_replace(".{$extension}", '', $file->getFilename());
+        $story = Story::factory()->createOne();
 
         $mime_type = 'appilication/pdf';
         $size = $file->getSize();
@@ -39,6 +41,7 @@ class MediaTest extends TestCase
         $media->mime_type = $mime_type;
         $media->aggregate_type = $extension;
         $media->size = $size;
+        $media->story()->associate($story);
 
         self::assertNull($media->id);
 
@@ -56,6 +59,7 @@ class MediaTest extends TestCase
         self::assertNotNull($media->created_at);
         self::assertNotNull($media->updated_at);
         self::assertContains($media->disk, $allowed_disks);
+        self::assertEquals($story->id, $media->story->id);
     }
 
     /**
@@ -108,14 +112,16 @@ class MediaTest extends TestCase
      */
     public function delete_model()
     {
-        Media::factory(1)->create();
-        $media = Media::all()->first();
+        $media = Media::factory()
+            ->for(Story::factory()->create())
+            ->createOne();
 
         self::assertFileExists($media->getAbsolutePath());
 
         $media->delete();
 
         self::assertEmpty(Media::all());
+        self::assertNotEmpty(Story::all());
         self::assertFileDoesNotExist($media->getAbsolutePath());
     }
 }

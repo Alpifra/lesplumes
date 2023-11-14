@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Media;
+use App\Models\Story;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
@@ -34,6 +35,7 @@ class MediaFactory extends Factory
             'mime_type'      => 'application/pdf',
             'aggregate_type' => $extension,
             'size'           => $file->getSize(),
+            'story_id'       => Story::factory()
         ];
     }
 

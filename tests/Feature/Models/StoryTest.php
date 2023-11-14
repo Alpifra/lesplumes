@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Models;
 
-use Tests\TestCase;
 use App\Models\Media;
-use App\Models\User;
 use App\Models\Round;
 use App\Models\Story;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class StoryTest extends TestCase
 {
@@ -24,11 +24,9 @@ class StoryTest extends TestCase
         $story = new Story;
         $round = Round::factory(1)->createOne();
         $writer = User::factory(1)->createOne();
-        $media = Media::factory(1)->createOne();
 
         $story->round()->associate($round);
         $story->writer()->associate($writer);
-        $story->media()->associate($media);
 
         self::assertNull($story->id);
 
@@ -37,7 +35,6 @@ class StoryTest extends TestCase
         self::assertNotNull($story->id);
         self::assertEquals($round->id, $story->round->id);
         self::assertEquals($writer->id, $story->writer->id);
-        self::assertEquals($media->id, $story->media->id);
         self::assertNotNull($story->created_at);
         self::assertNotNull($story->updated_at);
     }
@@ -58,17 +55,14 @@ class StoryTest extends TestCase
         $story = Story::all()->first();
         $round = Round::factory(1)->createOne();
         $writer = User::factory(1)->createOne();
-        $media = Media::factory(1)->createOne();
 
         $story->round()->associate($round);
         $story->writer()->associate($writer);
-        $story->media()->associate($media);
 
         $story->save();
 
         self::assertEquals($round->id, $story->round->id);
         self::assertEquals($writer->id, $story->writer->id);
-        self::assertEquals($media->id, $story->media->id);
         self::assertNotNull($story->created_at);
     }
 
@@ -79,10 +73,17 @@ class StoryTest extends TestCase
      */
     public function delete_model()
     {
-        Story::factory(1)->create();
+        Story::factory(1)
+            ->for(Round::factory()->create())
+            ->for(User::factory()->create(), 'writer')
+            ->has(Media::factory(1))
+            ->create();
         $story = Story::all()->first();
         $story->delete();
 
         self::assertEmpty(Story::all());
+        self::assertEmpty(Media::all());
+        self::assertNotEmpty(User::all());
+        self::assertNotEmpty(Round::all());
     }
 }
