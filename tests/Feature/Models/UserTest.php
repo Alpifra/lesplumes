@@ -22,6 +22,7 @@ class UserTest extends TestCase
         $user = new User;
         $user->first_name = fake()->firstName();
         $user->last_name = fake()->lastName();
+        $user->user_name = fake()->userName();
         $user->email = fake()->email();
         $user->password = Hash::make(fake()->password());
 
@@ -44,12 +45,14 @@ class UserTest extends TestCase
 
         $first_name = fake()->firstName();
         $last_name = fake()->lastName();
+        $user_name = fake()->userName();
         $email = fake()->email();
         $password = Hash::make(fake()->password());
 
         $user = User::all()->first();
         $user->first_name = $first_name;
         $user->last_name = $last_name;
+        $user->user_name = $user_name;
         $user->email = $email;
         $user->password = $password;
 
@@ -58,6 +61,7 @@ class UserTest extends TestCase
 
         self::assertEquals($first_name, $user->first_name);
         self::assertEquals($last_name, $user->last_name);
+        self::assertEquals($user_name, $user->user_name);
         self::assertEquals($email, $user->email);
         self::assertEquals($password, $user->password);
     }
