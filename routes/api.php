@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Resources\RoundCollection;
+use App\Http\Resources\RoundResource;
 use App\Http\Resources\StoryCollection;
 use App\Http\Resources\StoryResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Models\Round;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +23,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->name('api.')->group( function() {
+
+    // Round resource routing
+    Route::prefix('rounds')->name('rounds.')->group( function() {
+        Route::name('collection')->get(
+            '/', fn () => new RoundCollection(Round::paginate())
+        );
+        Route::name('single')->get(
+            '/{id}', fn (string $id) => new RoundResource(Round::findOrFail($id))
+        );
+    });
 
     // Story resource routing
     Route::prefix('stories')->name('stories.')->group( function() {

@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Http\Api\Resources;
 
-use App\Models\Story;
+use App\Models\Round;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
-class StoryApiTest extends TestCase
+class RoundApiTest extends TestCase
 {
 
     use WithFaker;
@@ -17,15 +17,15 @@ class StoryApiTest extends TestCase
      * @test
      * @group api
      * @group apiGet
-     * @group story
+     * @group round
      */
-    public function get_story_collection(): void
+    public function get_round_collection(): void
     {
         $user = User::factory()->create();
-        Story::factory()->create();
+        Round::factory()->create();
 
         $response = $this->actingAs($user)
-            ->get('/api/stories');
+            ->get('/api/rounds');
 
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
@@ -36,10 +36,9 @@ class StoryApiTest extends TestCase
                         'data.0',
                         fn (AssertableJson $json) =>
                         $json->has('id')
-                             ->has('writer')
-                             ->has('round')
+                             ->has('master')
+                             ->has('word')
                              ->has('created_at')
-                             ->has('updated_at')
                              ->etc()
                     )
         );
@@ -49,15 +48,15 @@ class StoryApiTest extends TestCase
      * @test
      * @group api
      * @group apiGet
-     * @group story
+     * @group round
      */
-    public function get_story(): void
+    public function get_round(): void
     {
         $user = User::factory()->create(); 
-        $story = Story::factory()->create();
+        $round = Round::factory()->create();
 
         $response = $this->actingAs($user)
-            ->get("/api/stories/{$story->id}");
+            ->get("/api/rounds/{$round->id}");
 
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
@@ -66,10 +65,9 @@ class StoryApiTest extends TestCase
                         'data',
                         fn (AssertableJson $json) =>
                         $json->has('id')
-                             ->has('writer')
-                             ->has('round')
+                             ->has('master')
+                             ->has('word')
                              ->has('created_at')
-                             ->has('updated_at')
                              ->etc()
                     )
         );

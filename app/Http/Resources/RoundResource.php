@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Story;
+use App\Models\Round;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Story
+ * @mixin Round
  */
-class StoryResource extends JsonResource
+class RoundResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,10 +20,9 @@ class StoryResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'writer'     => new UserResource($this->writer),
-            'round'      => new RoundResource($this->round),
+            'master'     => new UserResource($this->master),
+            'word'       => $this->word,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }
