@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Resources\StoryCollection;
+use App\Http\Resources\StoryResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Models\Story;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +20,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->name('api.')->group( function() {
+
+    // Story resource routing
+    Route::prefix('stories')->name('stories.')->group( function() {
+        Route::name('collection')->get(
+            '/', fn () => new StoryCollection(Story::paginate())
+        );
+        Route::name('single')->get(
+            '/{id}', fn (string $id) => new StoryResource(Story::findOrFail($id))
+        );
+    });
 
     // User resource routing
     Route::prefix('users')->name('users.')->group( function() {
