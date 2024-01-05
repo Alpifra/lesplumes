@@ -1,6 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +16,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->name('api.')->group( function() {
+
+    // User resource routing
+    Route::prefix('users')->name('users.')->group( function() {
+        Route::name('collection')->get(
+            '/', fn () => new UserCollection(User::paginate())
+        );
+        Route::name('single')->get(
+            '/{id}', fn (string $id) => new UserResource(User::findOrFail($id))
+        );
+    });
+
 });
