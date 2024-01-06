@@ -78,7 +78,7 @@ class UserApiTest extends TestCase
      */
     public function patch_user(): void
     {
-        $user = User::factory()->create();
+        $user = User::all()->first();
 
         $first_name = fake()->firstName();
         $last_name = fake()->firstName();
@@ -100,4 +100,21 @@ class UserApiTest extends TestCase
                      ->where('data.user_name', $user_name)
             );
     }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group user
+     */
+    public function delete_user()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->delete("/api/users/{$user->id}");
+
+        $response->assertStatus(204);
+    }
+    
 }
