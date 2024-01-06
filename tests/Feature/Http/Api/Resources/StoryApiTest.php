@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Api\Resources;
 
+use App\Models\Media;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,6 +15,30 @@ class StoryApiTest extends TestCase
     use WithFaker;
 
     /**
+     * Assert that a JSON has Story props
+     */
+    public static function assert_story_json(AssertableJson $json): AssertableJson
+    {
+        return $json->has('id')
+            ->has('writer', fn (AssertableJson $json) => UserApiTest::assert_user_json($json))
+            ->has('round', fn (AssertableJson $json) => RoundApiTest::assert_round_json($json))
+            ->has('media',
+                fn (Assertablejson $json) =>
+                    $json->has('id')
+                         ->has('url')
+                         ->has('extension')
+                         ->has('mime_type')
+                         ->has('size')
+                         ->has('created_at')
+                         ->has('updated_at')
+                         ->etc()
+                )
+            ->has('created_at')
+            ->has('updated_at')
+            ->etc();
+    }
+
+    /**
      * @test
      * @group api
      * @group apiGet
@@ -22,7 +47,9 @@ class StoryApiTest extends TestCase
     public function get_story_collection(): void
     {
         $user = User::factory()->create();
-        Story::factory()->create();
+        Story::factory()
+            ->has(Media::factory())
+            ->create();
 
         $response = $this->actingAs($user)
             ->get('/api/stories');
@@ -32,16 +59,7 @@ class StoryApiTest extends TestCase
                 $json->has('meta')
                      ->has('links')
                      ->has('data')
-                     ->has(
-                        'data.0',
-                        fn (AssertableJson $json) =>
-                        $json->has('id')
-                             ->has('writer')
-                             ->has('round')
-                             ->has('created_at')
-                             ->has('updated_at')
-                             ->etc()
-                    )
+                     ->has('data.0', fn (AssertableJson $json ) => self::assert_story_json($json))
         );
     }
 
@@ -54,7 +72,9 @@ class StoryApiTest extends TestCase
     public function get_story(): void
     {
         $user = User::factory()->create(); 
-        $story = Story::factory()->create();
+        $story = Story::factory()
+            ->has(Media::factory())
+            ->create();
 
         $response = $this->actingAs($user)
             ->get("/api/stories/{$story->id}");
@@ -62,16 +82,7 @@ class StoryApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
                 $json->has('data')
-                     ->has(
-                        'data',
-                        fn (AssertableJson $json) =>
-                        $json->has('id')
-                             ->has('writer')
-                             ->has('round')
-                             ->has('created_at')
-                             ->has('updated_at')
-                             ->etc()
-                    )
+                     ->has('data', fn (AssertableJson $json ) => self::assert_story_json($json))
         );
     }
 }

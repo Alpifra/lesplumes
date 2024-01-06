@@ -14,6 +14,18 @@ class RoundApiTest extends TestCase
     use WithFaker;
 
     /**
+     * Assert that a JSON has Round props
+     */
+    public static function assert_round_json(AssertableJson $json): AssertableJson
+    {
+        return $json->has('id')
+            ->has('master', fn (AssertableJson $json) => UserApiTest::assert_user_json($json))
+            ->has('word')
+            ->has('created_at')
+            ->etc();
+    }
+
+    /**
      * @test
      * @group api
      * @group apiGet
@@ -32,15 +44,7 @@ class RoundApiTest extends TestCase
                 $json->has('meta')
                      ->has('links')
                      ->has('data')
-                     ->has(
-                        'data.0',
-                        fn (AssertableJson $json) =>
-                        $json->has('id')
-                             ->has('master')
-                             ->has('word')
-                             ->has('created_at')
-                             ->etc()
-                    )
+                     ->has('data.0', fn (AssertableJson $json) => self::assert_round_json($json))
         );
     }
 
@@ -61,15 +65,7 @@ class RoundApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
                 $json->has('data')
-                     ->has(
-                        'data',
-                        fn (AssertableJson $json) =>
-                        $json->has('id')
-                             ->has('master')
-                             ->has('word')
-                             ->has('created_at')
-                             ->etc()
-                    )
+                     ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
         );
     }
 }
