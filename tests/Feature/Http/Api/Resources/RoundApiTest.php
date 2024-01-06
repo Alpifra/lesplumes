@@ -143,4 +143,21 @@ class RoundApiTest extends TestCase
                      ->where('data.participants.data.0.id', $participants->first()->id)
             );
     }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group round
+     */
+    public function delete_round()
+    {
+        $user = User::factory()->create();
+        $round = Round::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->delete("/api/rounds/{$round->id}");
+
+        $response->assertStatus(204);
+    }
 }

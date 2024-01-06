@@ -6,6 +6,7 @@ use App\Http\Resources\RoundCollection;
 use App\Http\Resources\RoundResource;
 use App\Models\Round;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RoundController extends Controller
 {
@@ -61,8 +62,10 @@ class RoundController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Round $round): Response
     {
-        //
+        $round->delete();
+
+        return Response(null, 204);
     }
 }
