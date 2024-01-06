@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\Request;
 
 class Round extends Model
 {
@@ -31,6 +32,18 @@ class Round extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public static function validate(Request $request): Request
+    {
+        $request->validate([
+            'word'           => 'required|string|max:50',
+            'master'         => 'required|exists:\App\Models\User,id',
+            'participants'   => 'required|array',
+            'participants.*' => 'different:master|exists:\App\Models\User,id',
+        ]);
+
+        return $request;
+    }
 
     /**
      * The master attached to a round.

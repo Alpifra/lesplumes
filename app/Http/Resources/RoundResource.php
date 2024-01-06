@@ -19,10 +19,11 @@ class RoundResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'master'     => new UserResource($this->master),
-            'word'       => $this->word,
-            'created_at' => $this->created_at,
+            'id'           => $this->id,
+            'master'       => new UserResource($this->master),
+            'participants' => new UserCollection($this->participants),
+            'word'         => $this->word,
+            'created_at'   => $this->created_at,
         ];
     }
 }

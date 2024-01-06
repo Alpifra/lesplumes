@@ -20,6 +20,9 @@ class RoundApiTest extends TestCase
     {
         return $json->has('id')
             ->has('master', fn (AssertableJson $json) => UserApiTest::assert_user_json($json))
+            ->has('participants')
+            ->has('participants.data')
+            ->has('participants.data.0', fn (AssertableJson $json) => UserApiTest::assert_user_json($json))
             ->has('word')
             ->has('created_at')
             ->etc();
@@ -33,8 +36,11 @@ class RoundApiTest extends TestCase
      */
     public function get_round_collection(): void
     {
+        Round::all()->first()->delete(); // remove entries from prev tests
         $user = User::factory()->create();
-        Round::factory()->create();
+        Round::factory()
+            ->has(User::factory()->count(2), 'participants')
+            ->create();
 
         $response = $this->actingAs($user)
             ->get('/api/rounds');
@@ -57,7 +63,9 @@ class RoundApiTest extends TestCase
     public function get_round(): void
     {
         $user = User::factory()->create(); 
-        $round = Round::factory()->create();
+        $round = Round::factory()
+            ->has(User::factory()->count(2), 'participants')
+            ->create();
 
         $response = $this->actingAs($user)
             ->get("/api/rounds/{$round->id}");
@@ -67,5 +75,72 @@ class RoundApiTest extends TestCase
                 $json->has('data')
                      ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
         );
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiPost
+     * @group round
+     */
+    public function post_round(): void
+    {
+        $user = User::factory()->create();
+
+        $word = fake()->word();
+        $master = User::factory()->create();
+        $participants = User::factory(4)->create();
+
+        $response = $this->actingAs($user)
+            ->post('/api/rounds', [
+                'word'         => $word,
+                'master'       => $master->id,
+                'participants' => $participants->pluck('id')->toArray(),
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJson( fn (AssertableJson $json) =>
+                $json->has('data')
+                     ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
+                     ->where('data.word', $word)
+                     ->where('data.master.id', $master->id)
+                     ->where('data.participants.data.0.id', $participants->first()->id)
+            );
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiPatch
+     * @group round
+     */
+    public function patch_round(): void
+    {
+        $user = User::factory()->create();
+        $round = Round::factory()
+            ->has(User::factory()->count(2), 'participants')
+            ->create();
+
+        $word = fake()->word();
+        $master = User::factory()->create();
+        $length = 4;
+        $participants = User::factory($length)->create();
+
+        $response = $this->actingAs($user)
+            ->patch("/api/rounds/{$round->id}", [
+                'word'         => $word,
+                'master'       => $master->id,
+                'participants' => $participants->pluck('id')->toArray(),
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson( fn (AssertableJson $json) =>
+                $json->has('data')
+                     ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
+                     ->where('data.word', $word)
+                     ->where('data.master.id', $master->id)
+                     ->has('data.participants.data', $length)
+                     ->where('data.participants.data.0.id', $participants->first()->id)
+            );
     }
 }

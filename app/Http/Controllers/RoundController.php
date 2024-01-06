@@ -20,9 +20,18 @@ class RoundController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RoundResource
     {
-        //
+        $request = Round::validate($request);
+
+        $round = new Round;
+        $round->word = $request->word;
+        $round->master_id = $request->master;
+        $round->save();
+
+        $round->participants()->sync($request->participants);
+
+        return new RoundResource($round);
     }
 
     /**
@@ -36,9 +45,17 @@ class RoundController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Round $round): RoundResource
     {
-        //
+        $request = Round::validate($request);
+
+        $round->word = $request->word;
+        $round->master_id = $request->master;
+        $round->save();
+
+        $round->participants()->sync($request->participants);
+
+        return new RoundResource($round);
     }
 
     /**

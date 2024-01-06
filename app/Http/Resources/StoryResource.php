@@ -21,7 +21,6 @@ class StoryResource extends JsonResource
         return [
             'id'         => $this->id,
             'writer'     => new UserResource($this->writer),
-            'round'      => new RoundResource($this->round),
             'media'      => new MediaResource($this->media),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

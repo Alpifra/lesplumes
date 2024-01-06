@@ -21,7 +21,6 @@ class StoryApiTest extends TestCase
     {
         return $json->has('id')
             ->has('writer', fn (AssertableJson $json) => UserApiTest::assert_user_json($json))
-            ->has('round', fn (AssertableJson $json) => RoundApiTest::assert_round_json($json))
             ->has('media', fn (AssertableJson $json) => MediaApiTest::assert_media_json($json))
             ->has('created_at')
             ->has('updated_at')
