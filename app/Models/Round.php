@@ -33,6 +33,9 @@ class Round extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * Validate an incoming request
+     */
     public static function validate(Request $request): Request
     {
         $request->validate([

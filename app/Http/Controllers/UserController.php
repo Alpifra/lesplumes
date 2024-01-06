@@ -28,9 +28,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): UserResource
+    public function show(User $user): UserResource
     {
-        return new UserResource(User::findOrFail($id));
+        return new UserResource($user);
     }
 
     /**

@@ -37,9 +37,9 @@ class RoundController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): RoundResource
+    public function show(Round $round): RoundResource
     {
-        return new RoundResource(Round::findOrFail($id));
+        return new RoundResource($round);
     }
 
     /**
