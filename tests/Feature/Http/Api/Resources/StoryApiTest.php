@@ -74,4 +74,21 @@ class StoryApiTest extends TestCase
                      ->has('data', fn (AssertableJson $json ) => self::assert_story_json($json))
         );
     }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group story
+     */
+    public function delete_story()
+    {
+        $user = User::factory()->create();
+        $story = Story::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->delete("/api/rounds/{$story->round->id}/stories/{$story->id}");
+
+        $response->assertStatus(204);
+    }
 }

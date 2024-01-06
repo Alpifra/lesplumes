@@ -7,6 +7,7 @@ use App\Http\Resources\StoryResource;
 use App\Models\Round;
 use App\Models\Story;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class StoryController extends Controller
 {
@@ -49,8 +50,12 @@ class StoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Round $round, Story $story): Response
     {
-        //
+        if ($round->id !== $story->round?->id) abort(404);
+
+        $story->delete();
+
+        return Response(null, 204);
     }
 }

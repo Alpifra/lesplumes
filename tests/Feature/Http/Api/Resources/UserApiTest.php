@@ -116,5 +116,4 @@ class UserApiTest extends TestCase
 
         $response->assertStatus(204);
     }
-    
 }
