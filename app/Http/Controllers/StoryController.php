@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\StoryCollection;
 use App\Http\Resources\StoryResource;
+use App\Models\Round;
 use App\Models\Story;
 use Illuminate\Http\Request;
 
@@ -12,33 +13,37 @@ class StoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): StoryCollection
+    public function index(Round $round): StoryCollection
     {
-        return new StoryCollection(Story::paginate());
+        return new StoryCollection(
+            Story::where('round_id', $round->id)->paginate()
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): never
     {
-        //
+        abort(404);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id): StoryResource
+    public function show(Round $round, Story $story): StoryResource
     {
-        return new StoryResource(Story::findOrFail($id));
+        if ($round->id !== $story->round?->id) abort(404);
+
+        return new StoryResource($story);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): never
     {
-        //
+        abort(404);
     }
 
     /**

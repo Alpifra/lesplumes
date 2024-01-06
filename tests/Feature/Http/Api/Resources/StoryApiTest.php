@@ -36,12 +36,12 @@ class StoryApiTest extends TestCase
     public function get_story_collection(): void
     {
         $user = User::factory()->create();
-        Story::factory()
+        $story = Story::factory()
             ->has(Media::factory())
             ->create();
 
         $response = $this->actingAs($user)
-            ->get('/api/stories');
+            ->get("/api/rounds/{$story->round->id}/stories");
 
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
@@ -66,7 +66,7 @@ class StoryApiTest extends TestCase
             ->create();
 
         $response = $this->actingAs($user)
-            ->get("/api/stories/{$story->id}");
+            ->get("/api/rounds/{$story->round->id}/stories/{$story->id}");
 
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>
