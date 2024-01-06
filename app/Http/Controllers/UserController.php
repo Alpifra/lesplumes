@@ -20,9 +20,9 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): never
     {
-        //
+        abort(404);
     }
 
     /**
@@ -36,9 +36,16 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user): UserResource
     {
-        //
+        $request = User::validate($request, $user);
+
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->user_name = $request->user_name;
+        $user->save();
+
+        return new UserResource($user);
     }
 
     /**

@@ -4,10 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Story;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
@@ -22,6 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'user_name',
         'email',
         'password',
     ];
@@ -46,6 +48,20 @@ class User extends Authenticatable
         'created_at' => 'datetime',
         'password'   => 'hashed',
     ];
+    
+    /**
+     * Validate an incoming request
+     */
+    public static function validate(Request $request, User $user): Request
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name'  => 'required|string|max:50',
+            'user_name'  => "required|string|unique:users,user_name,{$user->id}|max:50",
+        ]);
+
+        return $request;
+    }
 
     /**
      * The rounds where user is attached as master.
