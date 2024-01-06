@@ -48,6 +48,6 @@ class MediaFactory extends Factory
         $disk_filepath = $target_disk_path . $filename;
         Storage::disk($target_disk)->put($disk_filepath, $fake_pdf->getContent());
 
-        return new UploadedFile(storage_path("app/uploads/stories/{$filename}"), $filename);
+        return new UploadedFile(storage_path("app/uploads/stories/{$filename}"), $filename, 'application/pdf', null, true);
     }
 }

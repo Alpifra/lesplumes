@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->name('api.')->group( function() {
 
-    Route::singleton('stories.media', MediaController::class);
+    Route::resource('stories.media', MediaController::class);
     Route::resource('rounds', RoundController::class);
     Route::resource('rounds.stories', StoryController::class);
     Route::resource('users', UserController::class);
