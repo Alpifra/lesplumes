@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\UserController;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->name('api.')->group( function() {
 
+    Route::singleton('stories.media', MediaController::class);
     Route::resource('rounds', RoundController::class);
     Route::resource('stories', StoryController::class);
     Route::resource('users', UserController::class);
