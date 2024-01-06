@@ -109,4 +109,21 @@ class MediaApiTest extends TestCase
                      ->where('data.mime_type', 'application/pdf')
             );
     }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group media
+     */
+    public function delete_media()
+    {
+        $user = User::factory()->create();
+        $story = Story::all()->first();
+
+        $response = $this->actingAs($user)
+            ->delete("/api/stories/{$story->id}/media/{$story->media->id}");
+
+        $response->assertStatus(204);
+    }
 }

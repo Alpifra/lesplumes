@@ -7,6 +7,7 @@ use App\Models\Media;
 use App\Models\Story;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class MediaController extends Controller
 {
@@ -90,10 +91,14 @@ class MediaController extends Controller
     }
 
     /**
-     * Remove the resource from storage.
+     * Remove the specified resource from storage.
      */
-    public function destroy(): never
+    public function destroy(Story $story): Response
     {
-        abort(404);
+        if (!$media = $story->media) abort(404);
+
+        $media->delete();
+
+        return Response(null, 204);
     }
 }
