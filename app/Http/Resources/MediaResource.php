@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Story;
+use App\Models\Media;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Story
+ * @mixin Media
  */
-class StoryResource extends JsonResource
+class MediaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,9 +20,10 @@ class StoryResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'writer'     => new UserResource($this->writer),
-            'round'      => new RoundResource($this->round),
-            'media'      => new MediaResource($this->media),
+            'url'        => "/demo",
+            'extension'  => $this->extension,
+            'mime_type'  => $this->mime_type,
+            'size'       => $this->size,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
