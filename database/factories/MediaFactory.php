@@ -35,7 +35,8 @@ class MediaFactory extends Factory
             'mime_type'      => 'application/pdf',
             'aggregate_type' => $extension,
             'size'           => $file->getSize(),
-            'story_id'       => Story::factory()
+            'story_id'       => Story::factory(),
+            'alt'            => fake()->sentence(),
         ];
     }
 
