@@ -2,12 +2,14 @@
 SAIL = sh vendor/bin/sail
 DOCKER = docker-compose
 
+# Docker containers
+PHP_CONT = $(DOCKER_COMP) exec php
+
 # Executables
 PHP      = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 LARAVEL  = $(PHP_CONT) bin/console
 PHPSTAN  = $(PHP_CONT) vendor/bin/phpstan
-PHPUNIT  = $(PHP_CONT) bin/phpunit
 
 # Serveur
 SSH          = 
@@ -17,8 +19,8 @@ PROD-PATH    =
 PHP-PATH     = 
 
 # Misc
-.DEFAULT_GOAL = help
-.PHONY        = help up down logs sh tinker cc ci analyse tests seed drop dev production
+.DEFAULT_GOAL: help
+.PHONY       : help up down logs sh tinker cc ci analyse tests seed drop dev production
 
 ## —— 👨‍🎨 🐳 The Laravel-docker Makefile 🐳 👨‍🎨 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -53,7 +55,7 @@ analyse: ## Perform a static PHP code test of the project, see config file ./src
 	@$(PHPSTAN) analyse --memory-limit=2G
 
 tests: ## Launch PHPUnit tests and pass "c=" to run a given command, exemple: make test c="--group auth"
-	@$(PHPUNIT) --verbose
+	@$(SAIL) artisan test
 
 ## —— Database 💾 ———————————————————————————————————————————————————————————————
 seed: ## Seed database with fake data

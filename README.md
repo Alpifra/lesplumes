@@ -1,6 +1,6 @@
-# MotMuse Docker Environment
+# Les Plumes Docker Environment
 
-A [Docker](https://www.docker.com/) developpment environment for the [MotMuse](https://motmuse.fr/) plateform, running the [Laravel](https://laravel.com) web framework.
+A [Docker](https://www.docker.com/) developpment environment for the [Les Plumes](https://lesplumes.fr/) plateform, running the [Laravel](https://laravel.com) web framework.
 
 ## Getting Started
 
@@ -19,13 +19,13 @@ Run `make` to see all Makefile commands.
 ## Deploy on dev server
 
 1. Run `make dev` to deploy new file to the application
-2. Go to [dev.motmuse.fr](https://dev.motmuse.fr)
+2. Go to [dev.lesplumes.fr](https://dev.lesplumes.fr)
 
 ## Deploy on production server
 
 1. Run `make production` to deploy new file to the application
-2. Go to [motmuse.fr](https://motmuse.fr)
+2. Go to [lesplumes.fr](https://lesplumes.fr)
 
 ## Credits
 
-Based on the [sail](https://laravel.com/docs/10.x/sail) Docker interface.
+Based on the [sail](https://laravel.com/docs/11.x/sail) Docker interface.
