@@ -62,6 +62,13 @@ seed: ## Seed database with fake data
 seed: ci
 	@$(SAIL) artisan migrate:fresh --seed
 
+## —— Vue and frontend 🖥 ———————————————————————————————————————————————————————————————
+storybook: ## Start the storybook local server
+	cd vue-app; npm run storybook
+
+vue: ## Start the frontend local server
+	cd vue-app; npm run dev
+
 ## —— CI/CD 📦 ———————————————————————————————————————————————————————————————
 dev: ## Deploy a new application version on staging
 	rsync -av ./app/ $(SSH):$(DEV-PATH) \
