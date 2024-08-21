@@ -1,6 +1,6 @@
 # Executables (local)
-SAIL = sh vendor/bin/sail
-DOCKER = docker-compose
+SAIL = sh laravel-app/vendor/bin/sail
+DOCKER = docker compose
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
@@ -20,13 +20,16 @@ PHP-PATH     =
 
 # Misc
 .DEFAULT_GOAL: help
-.PHONY       : help up down logs sh tinker cc ci analyse tests seed drop dev production
+.PHONY       : help build up down logs sh tinker cc ci analyse tests seed drop dev production
 
 ## —— 👨‍🎨 🐳 The Laravel-docker Makefile 🐳 👨‍🎨 ——————————————————————————————————
 help: ## Outputs this help screen
 	@grep -E '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
+build: ## Build or rebuild the docker container
+	@$(SAIL) build --no-cache
+
 up: ## Start the docker container in detached mode
 	@$(SAIL) up --detach
 
