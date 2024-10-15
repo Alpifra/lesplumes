@@ -1,0 +1,67 @@
+// form component
+
+.form {
+
+}
+
+.input {
+
+    div {
+        position: relative;
+        width: 100%;
+    }
+
+    &.input-text {
+
+        .input-text-passwordIcon {
+            position: absolute;
+            right: .9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            cursor: pointer;
+        }
+    }
+
+    &.input-longText {
+
+        .input-longText-counter {
+            text-align: right;
+            color: $text-2;
+        }
+
+        &.error {
+
+            .input-longText-counter {
+                color: $error;
+            }
+        }
+    }
+
+    &.input-button {
+
+        &.secondary button {
+            color: $primary;
+            background-color: $neutral;
+            border-color: $primary;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        &.size-s button {
+            font-size: $small-font-size;
+            min-width: 100px;
+            padding-block: .5rem;
+        }
+
+        &.size-m button {
+            min-width: 160px;
+            padding-block: .8rem;
+        }
+
+        &.size-l button {
+            min-width: 100%;
+            padding-block: .8rem;
+        }
+    }
+}

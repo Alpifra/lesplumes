@@ -10,17 +10,27 @@ input[type='tel'],
 input[type='email'],
 input[type='search'],
 input[type='password'],
-//input[type='url'],
-// input[type='date'],
 textarea {
     -webkit-appearance: none;
     -webkit-border-radius: 0;
     box-sizing: border-box;
-    border: 1px solid $form-element-border-color;
     padding: $form-element-padding;
+    min-width: fit-content;
+    width: 100%;
+    padding: .9rem .8rem;
+    background-color: $background;
+    border-radius: $border-radius;
+    border-width: 1px;
+    border-style: solid;
+    border-color: $border;
+    color: $text;
+    font-size: .9rem;
+    display: block;
 
-    &:focus {
-        border-color: $form-element-focus-border-color;
+    &:focus, &:focus-visible, &:active {
+        outline-color: $form-element-focus-border-color;
+        outline-width: 1px;
+        outline-style: solid;
     }
 }
 
@@ -41,4 +51,32 @@ input[type='submit'] {
     -webkit-appearance: none;
     -webkit-border-radius: 0;
     cursor: pointer;
+    color: $neutral;
+    font-size: $btn-font-size;
+    background-color: $primary;
+    padding: .6rem 1.5rem;
+    border-radius: $border-radius;
+    transition: ease background-color $transition-speed;
+
+    &:focus, &:focus-visible, &:active {
+        outline-color: $form-element-focus-border-color;
+        outline-width: 1px;
+        outline-style: solid;
+    }
+}
+
+label {
+    display: block;
+    margin-bottom: .5rem;
+    margin-left: .2rem;
+}
+
+
+.error {
+
+    input, textarea {
+        outline-color: $error;
+        outline-width: 1px;
+        outline-style: solid;
+    }
 }

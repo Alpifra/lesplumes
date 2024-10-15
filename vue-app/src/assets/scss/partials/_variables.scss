@@ -50,7 +50,7 @@ $btn-font-size: inherit !default;
 // Forms
 $form-element-padding: $btn-padding !default;
 $form-element-border-color: $border !default;
-$form-element-focus-border-color: $text !default;
+$form-element-focus-border-color: $text-3 !default;
 
 // Headers
 $h1-font-size: 30px !default;
@@ -59,6 +59,7 @@ $h3-font-size: 24px !default;
 $h4-font-size: 21px !default;
 $h5-font-size: 17px !default;
 $h6-font-size: 15px !default;
+$small-font-size: 14px !default;
 
 $headings-font-family: inherit !default;
 $headings-color: inherit !default;

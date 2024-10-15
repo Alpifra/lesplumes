@@ -12,8 +12,13 @@ body {
     background: $base-background-color;
     font: #{$font-size-base}/#{$line-height-base} $base-font-family;
     min-width: $base-min-width;
+    margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+textarea {
+    font: #{$font-size-base}/#{$line-height-base} $base-font-family;
 }
 
 // adaptive images
