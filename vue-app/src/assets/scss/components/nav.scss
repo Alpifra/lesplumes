@@ -4,6 +4,9 @@
     top: 0;
     left: 0;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     border-top-right-radius: $border-radius;
     border-bottom-right-radius: $border-radius;
     width: 30vw;
@@ -67,4 +70,8 @@
     &:hover a {
         background-color: $background-2;
     }
+}
+
+.nav-account {
+
 }

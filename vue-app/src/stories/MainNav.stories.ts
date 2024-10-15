@@ -2,12 +2,12 @@ import type { Meta } from "@storybook/vue3";
 import { vueRouter } from "storybook-vue3-router";
 import { navRoutes } from "@/router/routes";
 import MainNav from "@/components/nav/MainNav.vue";
+import NavAccount from "@/components/nav/NavAccount.vue";
 import "../assets/scss/main.scss";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta = {
-    title: "Component/MainNav",
-    args: {},
+    title: "Component/Navigation",
     component: MainNav,
     tags: ["autodocs"],
 } satisfies Meta<typeof MainNav>;
@@ -22,5 +22,10 @@ export const Navigation = () => ({
     components: { MainNav },
     template: '<main-nav />',
 });
+
+export const Account = () => ({
+    components: { NavAccount },
+    template: '<nav-account />'
+})
 
 Navigation.decorators = [vueRouter(navRoutes)];
