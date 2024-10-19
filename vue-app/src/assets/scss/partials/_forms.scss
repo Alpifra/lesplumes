@@ -3,6 +3,10 @@ fieldset {
     margin: 0;
     padding: 0;
     border-style: none;
+
+    .input-button {
+        margin-top: 2rem;
+    }
 }
 
 input[type='text'],
@@ -18,6 +22,7 @@ textarea {
     min-width: fit-content;
     width: 100%;
     padding: .9rem .8rem;
+    margin-bottom: 1rem;
     background-color: $background;
     border-radius: $border-radius;
     border-width: 1px;
@@ -62,6 +67,11 @@ input[type='submit'] {
         outline-color: $form-element-focus-border-color;
         outline-width: 1px;
         outline-style: solid;
+    }
+
+    &:disabled {
+        background-color: $primary-2;
+        cursor: not-allowed;
     }
 }
 

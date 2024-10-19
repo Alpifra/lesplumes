@@ -7,7 +7,7 @@ import "../assets/scss/main.scss";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta = {
-    title: "Component/Navigation",
+    title: "Design System/Navigation",
     component: MainNav,
     tags: ["autodocs"],
 } satisfies Meta<typeof MainNav>;

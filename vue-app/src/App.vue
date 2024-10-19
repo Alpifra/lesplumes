@@ -1,10 +1,14 @@
 <script setup lang="ts">
+
 import { RouterView } from "vue-router";
 import Nav from "./components/nav/MainNav.vue";
+
+const currentUser = localStorage.getItem('user');
+
 </script>
 
 <template>
-    <header>
+    <header v-if="currentUser">
         <Nav />
     </header>
     <RouterView />

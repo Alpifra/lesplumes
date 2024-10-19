@@ -1,0 +1,50 @@
+.login, .reset-password {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    background-color: $neutral;
+
+    aside {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: $primary;
+        color: $neutral;
+        padding: 1rem 2rem;
+
+        h2 {
+            font-size: $h3-font-size;
+        }
+
+        p {
+            font-size: $small-font-size;
+        }
+
+        .aside-links {
+            position: absolute ;
+            left: 50%;
+            bottom: .5rem;
+            transform: translateX(-50%);
+
+            a {
+                color: $primary-3;
+            }
+        }
+    }
+
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+
+        .form {
+            width: 50%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .reset-link {
+            margin-top: .5rem;
+        }
+    }
+}

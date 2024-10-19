@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
-import Form from "@/components/form/Form.vue";
+import FormComponent from "@/components/form/FormComponent.vue";
 import InputText from "@/components/form/InputText.vue";
 import InputLongText from "@/components/form/InputLongText.vue";
 import InputButton from "@/components/form/InputButton.vue";
@@ -7,10 +7,10 @@ import "../assets/scss/main.scss";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta = {
-    title: "Component/Form",
-    component: Form,
+    title: "Design System/Form",
+    component: FormComponent,
     tags: ["autodocs"],
-} satisfies Meta<typeof Form>;
+} satisfies Meta<typeof FormComponent>;
 
 export default meta;
 

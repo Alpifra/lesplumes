@@ -15,26 +15,32 @@ h6, .h6,
 
 h1, .h1 {
     font-size: $h1-font-size;
+    margin-bottom: $h-margin-bottom+rem;
 }
 
 h2, .h2 {
     font-size: $h2-font-size;
+    margin-bottom: calc($h-margin-bottom * (1 - .2))+rem;
 }
 
 h3, .h3 {
     font-size: $h3-font-size;
+    margin-bottom: calc($h-margin-bottom * (1 - .5))+rem;
 }
 
 h4, .h4 {
     font-size: $h4-font-size;
+    margin-bottom: calc($h-margin-bottom * (1 - .8))+rem;
 }
 
 h5, .h5 {
     font-size: $h5-font-size;
+    margin-bottom: calc($h-margin-bottom * (1 - .9))+rem;
 }
 
 h6, .h6 {
     font-size: $h6-font-size;
+    margin-bottom: calc($h-margin-bottom * (1 - .9))+rem;
 }
 
 small {
