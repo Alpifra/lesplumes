@@ -1,6 +1,6 @@
 import { useFetch, METHODS } from "./useApi";
 
-const routePrefix = '/api/users';
+const routePrefix = '/users';
 
 export function useUsers() {
     return useFetch(routePrefix, METHODS.GET);

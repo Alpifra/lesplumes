@@ -1,14 +1,33 @@
 <script setup lang="ts">
 
+import { useLogin } from '@/API/useAuth';
 import FormComponent from '@/components/form/FormComponent.vue'
 import InputButton from '@/components/form/InputButton.vue';
 import InputText from '@/components/form/InputText.vue'
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 
 const applicationName = import.meta.env.VITE_APPLICATION_NAME;
+const router = useRouter();
 
-const onSubmit = () => {
-    console.log('coucou')
+const onSubmit = async (event: Event) => {
+    const form = event.target;
+    const data: { [key: string]: string } = {};
+
+    if (!(form instanceof HTMLElement)) return;
+
+    form.querySelectorAll('input').forEach(input => {
+        data[input.name.toString()] = input.value;
+    });
+
+    const logged = await useLogin({username: data.username, password: data.password});
+
+    if (logged.errors) {
+        // TODO: add popup with error message
+        console.log(logged.errors);
+    } else {
+        localStorage.setItem('user', JSON.stringify(logged.data));
+        router.push({ name: 'Accueil' })
+    }
 }
 
 </script>
@@ -31,12 +50,12 @@ const onSubmit = () => {
             </div>
         </aside>
         <div class="login-container">
-            <FormComponent :onSubmit="onSubmit">
+            <FormComponent @submit.prevent="onSubmit">
                 <h1>Se connecter</h1>
                 <InputText name="username" placeholder="Plume" :required=true />
                 <InputText name="password" placeholder="Mot de passe" :password=true :required=true />
                 <template #submit>
-                    <InputButton title="Se connecter" :disabled=true shape="primary" size="m" />
+                    <InputButton title="Se connecter" :disabled=false shape="primary" size="m" />
                 </template>
             </FormComponent>
             <small class="reset-link">

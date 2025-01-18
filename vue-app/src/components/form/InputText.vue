@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, shallowRef } from 'vue';
 import IconPasswordNotVisible from '../icons/IconPasswordNotVisible.vue';
 import IconPasswordVisible from '../icons/IconPasswordVisible.vue';
 
@@ -10,11 +10,10 @@ const props = defineProps<{
     placeholder?: string,
     password?: boolean,
     label?: string,
-    onChange?: () => void
 }>();
 
 const showPassword = ref(false)
-const icon = ref(IconPasswordVisible)
+const icon = shallowRef(IconPasswordVisible)
 const togglePassword = function() {
     showPassword.value = !showPassword.value
     icon.value = showPassword.value ? IconPasswordNotVisible : IconPasswordVisible
@@ -34,7 +33,6 @@ const togglePassword = function() {
                 :value="value"
                 :placeholder="placeholder"
                 :id="name"
-                @input="onChange"
             />
             <icon v-if="password" @click="togglePassword" class="input-text-passwordIcon"></icon>
         </div>
