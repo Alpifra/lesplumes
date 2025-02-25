@@ -6,7 +6,7 @@ interface loginData {
     password: string
 }
 
-const appEndpoint = import.meta.env.VITE_APPLICATION_ENDPOINT;
+const appEndpoint = import.meta.env.VITE_APP_ENDPOINT;
 
 const getCookie = (cookieName: string) => {
 
