@@ -61,7 +61,7 @@ class UserApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->get("/api/users/{$user->id}");
+            ->get("/api/users/{$user->user_name}");
 
         $response->assertStatus(200)
             ->assertJson( fn (AssertableJson $json) =>

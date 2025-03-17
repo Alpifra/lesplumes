@@ -58,8 +58,7 @@ export async function useLogin(data: loginData) {
 
     if (login.errors) return login;
 
-    // TODO: get user by username
-    return useUser(1);
+    return useUser(data.username);
 }
 
 export async function useLogout() {

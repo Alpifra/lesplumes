@@ -6,6 +6,6 @@ export function useUsers() {
     return useFetch(routePrefix, METHODS.GET);
 }
 
-export function useUser(id: number) {
-    return useFetch(routePrefix + "/" + String(id), METHODS.GET);
+export function useUser(username: string) {
+    return useFetch(routePrefix + "/" + username, METHODS.GET);
 }
