@@ -51,7 +51,7 @@ export async function useFetch(
 
         return {
             headers,
-            data: data,
+            data: data?.data,
         };
     } catch (error) {
         console.log(error);

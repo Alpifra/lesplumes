@@ -9,7 +9,7 @@ const currentUser = localStorage.getItem('user');
 
 <template>
     <header v-if="currentUser">
-        <Nav />
+        <Nav :user="currentUser" />
     </header>
     <RouterView />
 </template>

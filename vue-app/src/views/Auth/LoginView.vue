@@ -21,12 +21,11 @@ const onSubmit = async (event: Event) => {
 
     const logged = await useLogin({username: data.username, password: data.password});
 
-    if (logged.errors) {
-        // TODO: add popup with error message
-        console.log(logged.errors);
-    } else {
-        localStorage.setItem('user', JSON.stringify(logged.data));
+    if (logged) {
         router.push({ name: 'Home' })
+    } else {
+        // TODO display error message
+        console.log(logged)
     }
 }
 

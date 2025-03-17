@@ -14,7 +14,7 @@ const props = defineProps<{
 <template>
     <div class="nav-account">
         <RouterLink :to="{ name: 'Profile' }">
-            {{ user.user_name }}
+            {{ user.user_name.length > 18  ? user.user_name.split('', 18).join('') + '...' : user.user_name }}
             <IconPower @click="useLogout"></IconPower>
         </RouterLink>
     </div>
