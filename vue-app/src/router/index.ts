@@ -15,14 +15,18 @@ router.beforeEach(to => {
         !localStorage.getItem('user') &&
         !loginRouteNames.includes(to.name)
     ) {
+
         return router.push({ name: 'Login' });
+
     // TODO: add expiration token condition
+
     // redirect to home if try to access login while auth
     } else if (
+
         localStorage.getItem('user') &&
         loginRouteNames.includes(to.name)
     ) {
-        return router.push({ name: 'Accueil' });
+        return router.push({ name: 'Home' });
     }
 });
 

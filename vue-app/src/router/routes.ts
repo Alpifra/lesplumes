@@ -6,7 +6,7 @@ import type { RouteRecordRaw } from "vue-router";
 const navRoutes: RouteRecordRaw[] = [
     {
         path: "/",
-        name: "Accueil",
+        name: "Home",
         component: HomeView,
     },
     {
@@ -39,8 +39,8 @@ const allRoutes: RouteRecordRaw[] = [
     ...navRoutes,
     ...loginRoutes,
     {
-        path: "/profile",
-        name: "Profil",
+        path: "/profil",
+        name: "Profile",
         component: HomeView,
     }
 ];

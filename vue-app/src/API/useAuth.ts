@@ -1,3 +1,4 @@
+import router from "@/router";
 import { useFetch, METHODS } from "./useApi";
 import { useUser } from "./useUser";
 
@@ -6,7 +7,7 @@ interface loginData {
     password: string
 }
 
-const appEndpoint = import.meta.env.VITE_APP_ENDPOINT;
+const appEndpoint = import.meta.env.VITE_APPLICATION_ENDPOINT;
 
 const getCookie = (cookieName: string) => {
 
@@ -23,6 +24,10 @@ const getCookie = (cookieName: string) => {
 
     return cookies[cookieName] ?? null
 }
+
+const removeCookie = (cookieName: string) => {
+    document.cookie = `${encodeURIComponent(cookieName)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+};
 
 export async function useXsrfToken() {
 
@@ -56,3 +61,16 @@ export async function useLogin(data: loginData) {
     // TODO: get user by username
     return useUser(1);
 }
+
+export async function useLogout() {
+
+    const token = await useXsrfToken();
+    const logout = await useFetch('/logout', METHODS.POST, undefined, { 'X-XSRF-TOKEN': token ?? '' });
+
+    if (logout.errors) return logout;
+
+    localStorage.removeItem('user');
+    removeCookie('X-XSRF-TOKEN');
+
+    router.push('/connexion');
+};

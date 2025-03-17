@@ -3,7 +3,7 @@ const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
 export interface ApiResponse {
     headers: { status: number } | null,
     data: {} | null,
-    errors: { error?: any, message: string }
+    errors?: { error?: any, message: string }
 }
 
 export enum METHODS {
@@ -43,7 +43,7 @@ export async function useFetch(
 
     try {
         const response = await fetch(apiEndpoint + url, request);
-        const data = await response.json();
+        const data = response.status === 200 || response.status === 201 ? await response.json() : null;
         let headers = {
             status: response.status,
             ...Object.fromEntries(response.headers.entries())
@@ -52,7 +52,6 @@ export async function useFetch(
         return {
             headers,
             data: data,
-            errors: !response.ok ? data : null,
         };
     } catch (error) {
         console.log(error);

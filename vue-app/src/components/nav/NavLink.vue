@@ -13,7 +13,7 @@ const props = defineProps<{
 let icon = IconHome;
 
 switch (props.title) {
-    case 'Accueil':
+    case 'Home':
         icon = IconHome;
         break;
     case 'Session':

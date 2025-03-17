@@ -26,7 +26,7 @@ const onSubmit = async (event: Event) => {
         console.log(logged.errors);
     } else {
         localStorage.setItem('user', JSON.stringify(logged.data));
-        router.push({ name: 'Accueil' })
+        router.push({ name: 'Home' })
     }
 }
 

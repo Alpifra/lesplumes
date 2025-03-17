@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/vue3";
 import { vueRouter } from "storybook-vue3-router";
-import { navRoutes } from "@/router/routes";
+import { allRoutes } from "@/router/routes";
 import MainNav from "@/components/nav/MainNav.vue";
 import NavAccount from "@/components/nav/NavAccount.vue";
 import "../assets/scss/main.scss";
@@ -28,4 +28,4 @@ export const Account = () => ({
     template: '<nav-account />'
 })
 
-Navigation.decorators = [vueRouter(navRoutes)];
+Navigation.decorators = [vueRouter(allRoutes)];

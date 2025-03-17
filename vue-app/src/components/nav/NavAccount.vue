@@ -1,21 +1,21 @@
 <script setup lang="ts">
 
-import { useUser } from '@/API/useUser';
-import {ref} from 'vue'
+import { RouterLink } from 'vue-router';
+import IconPower from '../icons/IconPower.vue';
+import type { User } from '@/API/useUser';
+import { useLogout } from '@/API/useAuth';
 
-const logoutRoute = ref({});
-const user = ref(null);
-
-let demo = await useUser(1).then((demo) => demo)
+const props = defineProps<{
+    user: User,
+}>();
 
 </script>
 
 <template>
     <div class="nav-account">
-        <div class="nav-link">
-            <RouterLink :to="{ name: 'Profil' }">
-                Hello
-            </RouterLink>
-        </div>
+        <RouterLink :to="{ name: 'Profile' }">
+            {{ user.user_name }}
+            <IconPower @click="useLogout"></IconPower>
+        </RouterLink>
     </div>
 </template>

@@ -73,5 +73,25 @@
 }
 
 .nav-account {
+    position: relative;
+    width: 100%;
+    padding-inline: 1.8rem;
+    margin-block: 1rem;
 
+    a {
+        width: 100%;
+        display: block;
+        padding: 1rem;
+        border-radius: $border-radius;
+        color: $neutral;
+        background-color: $primary;
+    }
+
+    svg {
+        position: absolute;
+        width: 1.2rem;
+        right: 1rem;
+        top: 0;
+        transform: translateX(-100%);
+    }
 }
