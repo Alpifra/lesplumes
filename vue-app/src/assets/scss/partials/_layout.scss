@@ -1,5 +1,38 @@
-.main {
-    min-width: 100vw;
-    min-height: 100vh;
-    background-color: $background-2;
+// Layout variables
+$left-margin: 10px;
+
+#app {
+
+    .main {
+        min-height: 100vh;
+    }
+}
+
+.logged {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+
+    .main {
+        width: calc(100% + $left-margin);
+        margin-left: calc($left-margin * -1);
+        padding-block: 2rem;
+        padding-inline: calc(1.5rem + $left-margin) 1.5rem;
+        background-color: $background;
+
+        h1 {
+            color: $primary;
+        }
+    }
+}
+
+.container {
+    padding-block: 2.5rem;
+    padding-inline: 2rem;
+    background-color: $neutral;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+
+    .container-subtitle {
+        font-weight: normal;
+    }
 }

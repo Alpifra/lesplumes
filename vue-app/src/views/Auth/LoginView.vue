@@ -22,7 +22,7 @@ const onSubmit = async (event: Event) => {
     const logged = await useLogin({username: data.username, password: data.password});
 
     if (logged) {
-        router.push({ name: 'Home' })
+        router.push({ name: 'Home' }).then(() => window.location.reload())
     } else {
         // TODO display error message
         console.log(logged)

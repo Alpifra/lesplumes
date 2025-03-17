@@ -16,15 +16,11 @@ export function useUsers() {
     return useFetch(routePrefix, METHODS.GET);
 }
 
-export function useStorageUser(): User {
+export function useStorageUser(): User | null {
 
     const storedUser = localStorage.getItem('user');
 
-    if (!storedUser) {
-        throw new Error('User not found on local storage under "user" key.');
-    }
-
-    return JSON.parse(storedUser) as User;
+    return storedUser ? JSON.parse(storedUser) as User : null;
 }
 
 export async function useUser(username: string): Promise<User> {

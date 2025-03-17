@@ -71,5 +71,5 @@ export async function useLogout() {
     localStorage.removeItem('user');
     removeCookie('X-XSRF-TOKEN');
 
-    router.push('/connexion');
+    router.push('/connexion').then(() => window.location.reload());
 };
