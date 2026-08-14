@@ -57,17 +57,94 @@ class Round extends Model
     /**
      * The derived status of the round.
      *
-     * A round is "en-cours" while its deadline (end_at) has not passed,
-     * and "termine" once the deadline is behind us. A round without an
-     * end_at is considered open and therefore always "en-cours".
+     * A session closes when the circle has handed everything in, which
+     * stamps end_at with that moment (see closeIfComplete). A round is
+     * therefore "en-cours" until end_at is set and reached — sessions given
+     * a deadline up front read the same way — and "termine" from there on.
      */
     public function getStatusAttribute(): string
     {
-        if ($this->end_at && $this->end_at->isPast()) {
+        if ($this->end_at && !$this->end_at->isFuture()) {
             return 'termine';
         }
 
         return 'en-cours';
+    }
+
+    /**
+     * Close the session if every plume has handed her text in.
+     *
+     * A text counts as handed in once a file is attached to it. Only the
+     * participants are awaited: the master is the plume who picked the word.
+     * Returns whether this deposit was the one that closed the session.
+     */
+    public function closeIfComplete(): bool
+    {
+        if ($this->end_at) {
+            return false;
+        }
+
+        $awaited = $this->participants()->pluck('users.id');
+
+        if ($awaited->isEmpty()) {
+            return false;
+        }
+
+        $handedIn = $this->roundStories()
+            ->whereHas('media')
+            ->whereIn('writer_id', $awaited)
+            ->pluck('writer_id')
+            ->unique();
+
+        if ($handedIn->count() < $awaited->count()) {
+            return false;
+        }
+
+        $this->end_at = now();
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * The most recent session of the circle, ordered as the sessions list is.
+     */
+    public static function mostRecent(): ?self
+    {
+        return static::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
+     * The plume whose turn it is to pick the word of the next session.
+     *
+     * The turn travels through the circle by ascending id and starts over at
+     * the first plume once the last one has played — unless the plume in turn
+     * handed it over, which the session she closed records.
+     */
+    public static function nextSelector(): ?User
+    {
+        $firstPlume = User::query()->orderBy('id')->first();
+        $last = static::mostRecent();
+
+        if (!$last) {
+            return $firstPlume;
+        }
+
+        if ($last->next_master_id) {
+            return $last->nextMaster;
+        }
+
+        // A master whose account is gone leaves no place in the circle to
+        // resume from, so the turn goes back to the first plume.
+        if (!$last->master_id) {
+            return $firstPlume;
+        }
+
+        return User::query()->where('id', '>', $last->master_id)->orderBy('id')->first()
+            ?? $firstPlume;
     }
 
     /**
@@ -76,6 +153,14 @@ class Round extends Model
     public function master(): BelongsTo
     {
         return $this->belongsTo(User::class, foreignKey: 'master_id', ownerKey: 'id');
+    }
+
+    /**
+     * The plume the master handed the next word-picking over to, if any.
+     */
+    public function nextMaster(): BelongsTo
+    {
+        return $this->belongsTo(User::class, foreignKey: 'next_master_id', ownerKey: 'id');
     }
 
     /**

@@ -65,6 +65,50 @@ export async function useRound(id: number): Promise<Round | null> {
     return round.data ? normalizeRound(round.data) : null;
 }
 
+/** Who holds the word for the session to come, and the circle behind her. */
+export interface NextSession {
+    selector: User | null,
+    plumes: User[],
+    previous_round: Round | null,
+}
+
+export async function useNextSession(): Promise<NextSession> {
+    const response = await useFetch(routePrefix + '/next', METHODS.GET);
+    const data = response.data as any;
+
+    return {
+        selector: data?.selector ?? null,
+        plumes: data?.plumes?.data ?? data?.plumes ?? [],
+        previous_round: data?.previous_round ? normalizeRound(data.previous_round) : null,
+    };
+}
+
+export interface NewRound {
+    word: string,
+    master: number,
+    participants: number[],
+    start_at?: string | null,
+    end_at?: string | null,
+}
+
+export async function useCreateRound(round: NewRound) {
+    const token = await useXsrfToken();
+
+    return useFetch(routePrefix, METHODS.POST, round, { 'X-XSRF-TOKEN': token ?? '' });
+}
+
+/** Let another plume pick the word of the next session in our place. */
+export async function useHandOff(plumeId: number) {
+    const token = await useXsrfToken();
+
+    return useFetch(
+        `${routePrefix}/hand-off`,
+        METHODS.POST,
+        { plume: plumeId },
+        { 'X-XSRF-TOKEN': token ?? '' }
+    );
+}
+
 export async function useInvitePlume(roundId: number, email: string) {
     const token = await useXsrfToken();
 

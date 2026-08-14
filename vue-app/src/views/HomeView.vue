@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
-import type { Round } from '@/API/useRound';
-import { useRounds } from '@/API/useRound';
+import type { NextSession, Round } from '@/API/useRound';
+import { useNextSession, useRounds } from '@/API/useRound';
 import { useStats } from '@/API/useStats';
 import type { Story } from '@/API/useStory';
 import AppSidebar from '@/components/organisms/AppSidebar.vue';
 import AppTopBar from '@/components/organisms/AppTopBar.vue';
 import StatusPill from '@/components/atoms/StatusPill.vue';
 import UploadModal from '@/components/organisms/UploadModal.vue';
+import NewSessionCard from '@/components/organisms/NewSessionCard.vue';
+import WaitingSessionCard from '@/components/organisms/WaitingSessionCard.vue';
 import { useStorageUser } from '@/API/useUser';
 import type { PaginationMeta } from '@/API/useApi';
 import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate } from '@/utils/session';
@@ -20,13 +22,22 @@ const rounds = ref<Round[]>([]);
 const meta = ref<PaginationMeta | null>(null);
 const showUploadModal = ref(false);
 
+const nextSession = ref<NextSession | null>(null);
+
 const currentRound = computed<Round | null>(() =>
-    rounds.value.find(r => r.status === 'en-cours') ?? rounds.value[0] ?? null
+    rounds.value.find(r => r.status === 'en-cours') ?? null
 );
 
 const pastRounds = computed<Round[]>(() =>
     rounds.value.filter(r => r.id !== currentRound.value?.id)
 );
+
+// Once every session is closed, the dashboard hands over to the plume whose
+// turn it is to pick the word — the others only watch her do it.
+const selector = computed(() => nextSession.value?.selector ?? null);
+const circle = computed(() => nextSession.value?.plumes ?? []);
+const previousRound = computed(() => nextSession.value?.previous_round ?? null);
+const isSelector = computed(() => !!selector.value && selector.value.id === currentUser?.id);
 
 const canDeposit = computed(() => {
     const round = currentRound.value;
@@ -98,6 +109,8 @@ const load = async () => {
     rounds.value = response.data;
     meta.value = response.meta;
 
+    nextSession.value = currentRound.value ? null : await useNextSession();
+
     const stats = await useStats();
     avgWritingDays.value = stats.avg_writing_days;
 };
@@ -109,6 +122,7 @@ const goToCurrent = () => {
     if (currentRound.value) router.push({ name: 'SessionDetail', params: { id: currentRound.value.id } });
 };
 const goToDetail = (round: Round) => router.push({ name: 'SessionDetail', params: { id: round.id } });
+const goToNewRound = (roundId: number) => router.push({ name: 'SessionDetail', params: { id: roundId } });
 
 onMounted(load);
 </script>
@@ -129,7 +143,7 @@ onMounted(load);
                         <div class="home-session-card__header">
                             <div class="home-session-card__status-row">
                                 <span class="home-session-card__dot" />
-                                <span class="home-session-card__status-label">{{ currentRound.status === 'en-cours' ? 'Session en cours' : 'Dernière session' }}</span>
+                                <span class="home-session-card__status-label">Session en cours</span>
                             </div>
                         </div>
 
@@ -142,7 +156,9 @@ onMounted(load);
                                 <div class="home-session-card__meta">
                                     <span>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:14px;height:14px;vertical-align:middle;margin-right:5px;pointer-events:none"><path d="M4 6h16v15H4z"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
-                                        {{ formatDate(currentRound.start_at) }} → {{ formatDate(currentRound.end_at) }}
+                                        {{ currentRound.end_at
+                                            ? `${formatDate(currentRound.start_at)} → ${formatDate(currentRound.end_at)}`
+                                            : `Ouverte le ${formatDate(currentRound.start_at)}` }}
                                     </span>
                                     <span>·</span>
                                     <span>{{ currentRound.participants?.length ?? 0 }} plumes engagées</span>
@@ -179,6 +195,20 @@ onMounted(load);
                             </div>
                         </div>
                     </div>
+
+                    <!-- No session running: the word goes to the next plume -->
+                    <NewSessionCard
+                        v-else-if="selector && isSelector"
+                        :selector="selector"
+                        :plumes="circle"
+                        :previous-round="previousRound"
+                        @launched="goToNewRound"
+                    />
+                    <WaitingSessionCard
+                        v-else-if="selector"
+                        :selector="selector"
+                        :plumes="circle"
+                    />
 
                     <!-- Past sessions card -->
                     <div class="card home-past-card">

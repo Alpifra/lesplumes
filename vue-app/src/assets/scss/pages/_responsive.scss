@@ -195,6 +195,7 @@
     // screen's width. Trim every card/section's own padding down closer
     // to the data-table's 20px so content gets the full viewport width.
     .home-session-card { padding: 20px 18px 22px; }
+    .new-session-card { padding: 20px 18px 22px; }
     .home-past-card__table { margin: 4px 18px 22px; }
     .card-header { padding: 20px 18px 0; }
     .kpi-card { padding: 20px; }
@@ -241,6 +242,51 @@
         gap: 12px;
 
         > .btn { width: 100%; }
+    }
+
+    // New session: same treatment as the hero above — the display type and
+    // the word input are sized for a desktop column, and the rows that pair
+    // text with a button no longer fit side by side.
+    .new-session-card__header,
+    .new-session-card__hero,
+    .rotation__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        > .btn { width: 100%; }
+    }
+
+    .rotation__hint { text-align: left; }
+
+    .new-session-card__headline { font-size: 36px; }
+    .new-session-card__word { font-size: 48px; }
+    .new-session-card__title { font-size: 30px; }
+
+    .new-session-card__compose {
+        flex-direction: column;
+    }
+
+    .new-session-card__input {
+        height: 64px;
+        font-size: 32px;
+        padding: 0 16px;
+    }
+
+    .new-session-card__dice {
+        height: 48px;
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .new-session-card__actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .rotation__confirm {
+        flex-wrap: wrap;
     }
 
     // Filter bar: search + buttons no longer fit on one row, stack instead.

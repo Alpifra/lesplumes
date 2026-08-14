@@ -10,7 +10,7 @@ import { useRound, useDownloadRoundZip } from '@/API/useRound';
 import { useDownloadStory } from '@/API/useStory';
 import type { Round } from '@/API/useRound';
 import type { User } from '@/API/useUser';
-import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate, renduCount, daysLeft } from '@/utils/session';
+import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate, renduCount, daysLeft, awaitedCount } from '@/utils/session';
 
 const route = useRoute();
 const currentUser = useStorageUser();
@@ -100,7 +100,7 @@ onMounted(load);
                                 <span class="sessions-table__number" style="font-size:13px">Session #{{ String(round.id).padStart(3, '0') }}</span>
                                 <StatusPill :status="round.status" />
                             </div>
-                            <p class="session-hero__eyebrow">Le mot de la semaine</p>
+                            <p class="session-hero__eyebrow">Le mot de la session</p>
                             <h1 class="session-hero__word">{{ round.word }}</h1>
                             <svg class="session-hero__flourish" viewBox="0 0 200 24" fill="none">
                                 <path d="M 4 14 Q 40 2 82 12 T 166 14 Q 196 14 198 6" stroke="#9255FD" stroke-width="2.2" stroke-linecap="round"/>
@@ -116,8 +116,18 @@ onMounted(load);
                         <div class="session-hero__right">
                             <template v-if="!isEnded">
                                 <span class="session-hero__countdown-label">encore</span>
-                                <span class="session-hero__countdown">{{ daysLeft(round) }}</span>
-                                <span class="data-table__muted" style="font-size:14px">jours pour écrire</span>
+                                <!-- Without a deadline, the session closes on the last deposit:
+                                     count the plumes awaited rather than the days. -->
+                                <template v-if="round.end_at">
+                                    <span class="session-hero__countdown">{{ daysLeft(round) }}</span>
+                                    <span class="data-table__muted" style="font-size:14px">jours pour écrire</span>
+                                </template>
+                                <template v-else>
+                                    <span class="session-hero__countdown">{{ awaitedCount(round) }}</span>
+                                    <span class="data-table__muted" style="font-size:14px">
+                                        {{ awaitedCount(round) > 1 ? 'plumes attendues' : 'plume attendue' }}
+                                    </span>
+                                </template>
                                 <button
                                     v-if="canDeposit"
                                     class="btn btn--primary"
@@ -141,7 +151,7 @@ onMounted(load);
                         <div class="card-header" style="padding: 22px 24px 18px;">
                             <div>
                                 <div class="card-header__eyebrow">Contributions</div>
-                                <h3 class="card-header__title">Les plumes de cette session</h3>
+                                <h3 class="card-header__title">Les plumes participantes</h3>
                             </div>
                             <button
                                 v-if="hasDeposits && isEnded"

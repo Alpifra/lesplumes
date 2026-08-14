@@ -18,6 +18,15 @@ class RoundPolicy
     }
 
     /**
+     * A session only opens when the plume whose turn it is opens it — the
+     * same rule guards handing the turn over to someone else.
+     */
+    public function create(User $user): bool
+    {
+        return Round::nextSelector()?->id === $user->id;
+    }
+
+    /**
      * Only the master steers his session, as for invitations.
      */
     public function update(User $user, Round $round): bool

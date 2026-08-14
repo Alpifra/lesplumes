@@ -19,6 +19,15 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
+    /** A session with no deadline: it closes on the last deposit alone. */
+    private function openRound(): Round
+    {
+        return Round::factory()->create([
+            'start_at' => now()->subWeek(),
+            'end_at'   => null,
+        ]);
+    }
+
     private function finishedRound(): Round
     {
         return Round::factory()->create([
@@ -240,5 +249,132 @@ class RoundActionsApiTest extends TestCase
         ]);
 
         $response->assertStatus(200)->assertJsonPath('status', 'invited');
+    }
+
+    /**
+     * The master of the round never writes here, which is the point: the
+     * session closes on the participants alone.
+     *
+     * @test
+     * @group api
+     * @group round
+     */
+    public function a_session_closes_once_every_plume_has_handed_in(): void
+    {
+        $first = User::factory()->create();
+        $last = User::factory()->create();
+        $round = $this->openRound();
+        $round->participants()->attach([$first->id, $last->id]);
+
+        $this->actingAs($first)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        // One plume short: the session stays open.
+        $round->refresh();
+        self::assertNull($round->end_at);
+        self::assertSame('en-cours', $round->status);
+
+        $this->actingAs($last)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        $round->refresh();
+        self::assertNotNull($round->end_at);
+        self::assertSame('termine', $round->status);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function a_closed_session_refuses_any_further_deposit(): void
+    {
+        $plume = User::factory()->create();
+        $round = $this->openRound();
+        $round->participants()->attach($plume);
+
+        $this->actingAs($plume)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        self::assertSame('termine', $round->fresh()->status);
+
+        $this->actingAs($plume)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(403);
+    }
+
+    /**
+     * The turn is pinned with a hand-off rather than left to the rotation:
+     * the suite shares a persistent database, where the circle and the
+     * sessions that precede a test are not under its control.
+     */
+    private function roundHandingTheTurnTo(User $plume): Round
+    {
+        return Round::factory()->create([
+            'start_at'       => now()->subMonth(),
+            'end_at'         => now()->subWeek(),
+            'next_master_id' => $plume->id,
+        ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_next_session_names_the_plume_whose_turn_it_is(): void
+    {
+        $plume = User::factory()->create();
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->getJson('/api/rounds/next')
+            ->assertStatus(200)
+            ->assertJsonPath('data.selector.id', $plume->id)
+            ->assertJsonPath('data.previous_round.id', $round->id)
+            ->assertJsonStructure(['data' => ['selector', 'plumes' => ['data'], 'previous_round']]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_plume_in_turn_can_hand_the_word_over(): void
+    {
+        $plume = User::factory()->create();
+        $successor = User::factory()->create();
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->postJson('/api/rounds/hand-off', ['plume' => $successor->id])
+            ->assertStatus(200)
+            ->assertJsonPath('data.id', $successor->id);
+
+        $this->assertDatabaseHas('rounds', [
+            'id'             => $round->id,
+            'next_master_id' => $successor->id,
+        ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function handing_the_word_over_is_refused_to_a_plume_whose_turn_it_is_not(): void
+    {
+        $plume = User::factory()->create();
+        $intruder = User::factory()->create();
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($intruder)->postJson('/api/rounds/hand-off', ['plume' => $intruder->id])
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('rounds', [
+            'id'             => $round->id,
+            'next_master_id' => $plume->id,
+        ]);
     }
 }

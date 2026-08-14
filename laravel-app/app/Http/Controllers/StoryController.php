@@ -61,6 +61,8 @@ class StoryController extends Controller
 
         Media::storeForStory($story, $request->file('file'));
 
+        $round->closeIfComplete();
+
         return (new StoryResource($story->fresh(['writer', 'media'])))
             ->response()
             ->setStatusCode(201);

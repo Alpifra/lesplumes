@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RoundCollection;
 use App\Http\Resources\RoundResource;
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\Media;
 use App\Models\Round;
@@ -66,11 +67,69 @@ class RoundController extends Controller
     }
 
     /**
+     * The state of the session to come: the plume whose turn it is to pick
+     * the word, the circle in rotation order, and the session that closed
+     * last — which the dashboard reads once no session is running.
+     */
+    public function next(): JsonResponse
+    {
+        $selector = Round::nextSelector();
+        $previous = Round::mostRecent();
+
+        return response()->json([
+            'data' => [
+                'selector'       => $selector ? new UserResource($selector) : null,
+                'plumes'         => new UserCollection(User::orderBy('id')->get()),
+                'previous_round' => $previous ? new RoundResource($previous) : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Hand the word-picking over to another plume, who opens the next
+     * session in place of the plume whose turn it was.
+     *
+     * The hand-off is recorded on the session that closed last, so a plume
+     * who received the turn may pass it on again by overwriting it.
+     */
+    public function handOff(Request $request): JsonResponse
+    {
+        $this->authorize('create', Round::class);
+
+        $request->validate([
+            'plume' => 'required|exists:\App\Models\User,id',
+        ]);
+
+        abort_if(
+            (int) $request->plume === $request->user()->id,
+            422,
+            'La main est déjà à vous.'
+        );
+
+        $round = Round::mostRecent();
+
+        abort_unless($round, 409, 'Aucune session close à laquelle rattacher la main.');
+
+        $round->next_master_id = $request->plume;
+        $round->save();
+
+        return response()->json(['data' => new UserResource(User::findOrFail($request->plume))]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request): RoundResource
     {
+        $this->authorize('create', Round::class);
+
         $request = Round::validate($request);
+
+        abort_unless(
+            (int) $request->master === $request->user()->id,
+            403,
+            "La plume qui ouvre la session en est le maître."
+        );
 
         $round = new Round;
         $round->word = $request->word;

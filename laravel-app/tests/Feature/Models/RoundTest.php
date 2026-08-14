@@ -88,4 +88,63 @@ class RoundTest extends TestCase
         self::assertNotEmpty(User::all());
         self::assertEmpty(Story::all());
     }
+
+    /**
+     * @test
+     * @group model
+     * @group round
+     */
+    public function next_selector_opens_the_circle_on_the_first_plume()
+    {
+        self::assertNull(Round::nextSelector());
+
+        $plumes = User::factory(3)->create();
+
+        self::assertEquals($plumes->first()->id, Round::nextSelector()->id);
+    }
+
+    /**
+     * @test
+     * @group model
+     * @group round
+     */
+    public function next_selector_follows_the_circle_by_ascending_id()
+    {
+        $plumes = User::factory(3)->create();
+
+        Round::factory()->create(['master_id' => $plumes[0]->id]);
+
+        self::assertEquals($plumes[1]->id, Round::nextSelector()->id);
+    }
+
+    /**
+     * @test
+     * @group model
+     * @group round
+     */
+    public function next_selector_starts_over_after_the_last_plume()
+    {
+        $plumes = User::factory(3)->create();
+
+        Round::factory()->create(['master_id' => $plumes->last()->id]);
+
+        self::assertEquals($plumes->first()->id, Round::nextSelector()->id);
+    }
+
+    /**
+     * @test
+     * @group model
+     * @group round
+     */
+    public function next_selector_honours_a_hand_off()
+    {
+        $plumes = User::factory(3)->create();
+
+        Round::factory()->create([
+            'master_id'      => $plumes[0]->id,
+            'next_master_id' => $plumes->last()->id,
+        ]);
+
+        self::assertEquals($plumes->last()->id, Round::nextSelector()->id);
+    }
 }

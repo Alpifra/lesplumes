@@ -137,13 +137,16 @@ class RoundApiTest extends TestCase
         $user = User::factory()->create();
 
         $word = fake()->word();
-        $master = User::factory()->create();
         $participants = User::factory(4)->create();
+
+        // The session that closed last hands the turn to $user, which is what
+        // lets her open the next one and master it.
+        Round::factory()->create(['next_master_id' => $user->id]);
 
         $response = $this->actingAs($user)
             ->post('/api/rounds', [
                 'word'         => $word,
-                'master'       => $master->id,
+                'master'       => $user->id,
                 'participants' => $participants->pluck('id')->toArray(),
             ]);
 
@@ -152,9 +155,32 @@ class RoundApiTest extends TestCase
                 $json->has('data')
                      ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
                      ->where('data.word', $word)
-                     ->where('data.master.id', $master->id)
+                     ->where('data.master.id', $user->id)
                      ->where('data.participants.data.0.id', $participants->first()->id)
             );
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiPost
+     * @group round
+     */
+    public function post_round_is_refused_to_a_plume_whose_turn_it_is_not(): void
+    {
+        $user = User::factory()->create();
+        $inTurn = User::factory()->create();
+        $participants = User::factory(4)->create();
+
+        Round::factory()->create(['next_master_id' => $inTurn->id]);
+
+        $this->actingAs($user)
+            ->post('/api/rounds', [
+                'word'         => fake()->word(),
+                'master'       => $user->id,
+                'participants' => $participants->pluck('id')->toArray(),
+            ])
+            ->assertStatus(403);
     }
 
     /**

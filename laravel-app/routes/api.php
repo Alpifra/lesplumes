@@ -22,6 +22,10 @@ Route::middleware('auth:sanctum')->name('api.')->group( function() {
 
     Route::get('stats', [StatsController::class, 'index'])->name('stats.index');
 
+    // Declared before the resource so "next" is not read as a {round} key.
+    Route::get('rounds/next', [RoundController::class, 'next'])->name('rounds.next');
+    Route::post('rounds/hand-off', [RoundController::class, 'handOff'])->name('rounds.hand-off');
+
     Route::get('rounds/{round}/download', [RoundController::class, 'download'])->name('rounds.download');
     Route::post('rounds/{round}/invite', [RoundController::class, 'invite'])->name('rounds.invite');
     Route::get('rounds/{round}/stories/{story}/download', [StoryController::class, 'download'])->name('rounds.stories.download');

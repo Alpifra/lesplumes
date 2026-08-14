@@ -49,7 +49,8 @@ class DatabaseSeeder extends Seeder
             $this->deposit($round, $plumes);
         }
 
-        $ongoing = $this->round($admin, $plumes, now()->subWeek(), now()->addWeek());
+        // Still open: it closes on its own once the last plume hands in.
+        $ongoing = $this->round($admin, $plumes, now()->subWeek(), null);
 
         // Half the circle has handed in so far, the others are still writing.
         $this->deposit($ongoing, $plumes->take(intdiv($plumes->count(), 2)));
@@ -76,7 +77,7 @@ class DatabaseSeeder extends Seeder
     /**
      * A session mastered by the admin, which the whole circle joins.
      */
-    private function round(User $admin, Collection $plumes, Carbon $startAt, Carbon $endAt): Round
+    private function round(User $admin, Collection $plumes, Carbon $startAt, ?Carbon $endAt): Round
     {
         $round = Round::factory()->create([
             'master_id'  => $admin->id,
@@ -101,7 +102,7 @@ class DatabaseSeeder extends Seeder
         $plumes->each(function (User $plume) use ($round): void {
             $writtenAt = fake()->dateTimeBetween(
                 $round->start_at,
-                min($round->end_at, now()),
+                $round->end_at ? min($round->end_at, now()) : now(),
             );
 
             Story::factory()

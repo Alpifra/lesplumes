@@ -33,6 +33,8 @@ class MediaController extends Controller
 
         $media = Media::storeForStory($story, $request->file('file'));
 
+        $story->round?->closeIfComplete();
+
         return new MediaResource($media);
     }
 
@@ -62,6 +64,8 @@ class MediaController extends Controller
         Media::validate($request);
 
         $media = Media::storeForStory($story, $request->file('file'));
+
+        $story->round?->closeIfComplete();
 
         return new MediaResource($media);
     }

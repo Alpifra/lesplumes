@@ -42,9 +42,29 @@ export const depositDate = (round: Round, userId: number): string | null => {
     return story?.media ? story.updated_at : null;
 };
 
+/** The pool the "mot au hasard" button draws from when opening a session. */
+export const RANDOM_WORDS = [
+    'Zinzolin', 'Fanfreluche', 'Chafouin', 'Amphigouri', 'Esbroufe',
+    'Guilledou', 'Crépusculaire', 'Balbutier', 'Rocambolesque', 'Fadaise',
+];
+
+/** A word from the pool, never the one already picked. */
+export const randomWord = (exclude = ''): string => {
+    const pool = RANDOM_WORDS.filter(word => word !== exclude);
+
+    return pool[Math.floor(Math.random() * pool.length)];
+};
+
 /** Number of participants who have deposited a PDF. */
 export const renduCount = (round: Round): number =>
     (round.stories ?? []).filter(story => story.media).length;
+
+/**
+ * Participants still expected to hand in. A session without a deadline
+ * closes when this reaches zero, so it stands in for the countdown.
+ */
+export const awaitedCount = (round: Round): number =>
+    Math.max(0, (round.participants ?? []).length - renduCount(round));
 
 /** Whole days left before a round's deadline (0 if past / undated). */
 export const daysLeft = (round: Round): number => {
