@@ -20,7 +20,12 @@ class MediaResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'url'        => "/demo",
+            'url'        => $this->story
+                ? route('api.rounds.stories.download', [
+                    'round' => $this->story->round_id,
+                    'story' => $this->story_id,
+                ])
+                : null,
             'extension'  => $this->extension,
             'mime_type'  => $this->mime_type,
             'size'       => $this->size,

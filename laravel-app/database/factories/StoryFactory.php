@@ -21,6 +21,7 @@ class StoryFactory extends Factory
         return [
             'round_id'  => Round::factory(),
             'writer_id' => User::factory(),
+            'title'     => fake()->sentence(3),
         ];
     }
 }

@@ -1,3 +1,5 @@
+@use "variables";
+
 // Typography
 
 h1, .h1,
@@ -7,44 +9,44 @@ h4, .h4,
 h5, .h5,
 h6, .h6,
 .h {
-    font-family: $headings-font-family;
+    font-family: variables.$headings-font-family;
     font-weight: bold;
     margin: 0 0 0.5em;
-    color: $headings-color;
+    color: variables.$headings-color;
 }
 
 h1, .h1 {
-    font-size: $h1-font-size;
-    margin-bottom: $h-margin-bottom+rem;
+    font-size: variables.$h1-font-size;
+    margin-bottom: variables.$h-margin-bottom+rem;
 }
 
 h2, .h2 {
-    font-size: $h2-font-size;
-    margin-bottom: calc($h-margin-bottom * (1 - .2))+rem;
+    font-size: variables.$h2-font-size;
+    margin-bottom: calc(variables.$h-margin-bottom * (1 - .2))+rem;
 }
 
 h3, .h3 {
-    font-size: $h3-font-size;
-    margin-bottom: calc($h-margin-bottom * (1 - .5))+rem;
+    font-size: variables.$h3-font-size;
+    margin-bottom: calc(variables.$h-margin-bottom * (1 - .5))+rem;
 }
 
 h4, .h4 {
-    font-size: $h4-font-size;
-    margin-bottom: calc($h-margin-bottom * (1 - .8))+rem;
+    font-size: variables.$h4-font-size;
+    margin-bottom: calc(variables.$h-margin-bottom * (1 - .8))+rem;
 }
 
 h5, .h5 {
-    font-size: $h5-font-size;
-    margin-bottom: calc($h-margin-bottom * (1 - .9))+rem;
+    font-size: variables.$h5-font-size;
+    margin-bottom: calc(variables.$h-margin-bottom * (1 - .9))+rem;
 }
 
 h6, .h6 {
-    font-size: $h6-font-size;
-    margin-bottom: calc($h-margin-bottom * (1 - .9))+rem;
+    font-size: variables.$h6-font-size;
+    margin-bottom: calc(variables.$h-margin-bottom * (1 - .9))+rem;
 }
 
 small {
-    font-size: $small-font-size;
+    font-size: variables.$small-font-size;
 }
 
 p {
@@ -52,11 +54,11 @@ p {
 }
 
 a {
-    color: $base-link-color;
+    color: variables.$base-link-color;
     text-decoration: none;
-    transition: color $animation-speed;
+    transition: color variables.$animation-speed;
     &:hover,
     &:focus {
-        color: $base-link-color-hover;
+        color: variables.$base-link-color-hover;
     }
 }

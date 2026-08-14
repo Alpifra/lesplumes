@@ -22,6 +22,8 @@ class Round extends Model
      */
     protected $fillable = [
         'word',
+        'start_at',
+        'end_at',
     ];
 
     /**
@@ -31,6 +33,8 @@ class Round extends Model
      */
     protected $casts = [
         'created_at' => 'datetime',
+        'start_at'   => 'datetime',
+        'end_at'     => 'datetime',
     ];
 
     /**
@@ -43,9 +47,27 @@ class Round extends Model
             'master'         => 'required|exists:\App\Models\User,id',
             'participants'   => 'required|array',
             'participants.*' => 'different:master|exists:\App\Models\User,id',
+            'start_at'       => 'nullable|date',
+            'end_at'         => 'nullable|date|after_or_equal:start_at',
         ]);
 
         return $request;
+    }
+
+    /**
+     * The derived status of the round.
+     *
+     * A round is "en-cours" while its deadline (end_at) has not passed,
+     * and "termine" once the deadline is behind us. A round without an
+     * end_at is considered open and therefore always "en-cours".
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->end_at && $this->end_at->isPast()) {
+            return 'termine';
+        }
+
+        return 'en-cours';
     }
 
     /**

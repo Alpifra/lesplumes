@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(gunzip -c \"/Users/alec/.claude/projects/-Users-alec-Documents-Pro-Local-dev-lesplumes/fae4a3dc-2e01-495e-a4c2-9671983bf5e6/tool-results/webfetch-1776703847593-u2l0gz.bin\")",
+      "Bash(tar -x --to-stdout \"les-plumes/project/Les Plumes.html\")",
+      "Bash(tar -t)",
+      "Bash(grep -v \"/$\")"
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+@use "../../partials/variables";
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 22px;
+    border-radius: 10px;
+    border: none;
+    font-family: variables.$font-ui;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        outline: none;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    &--primary {
+        background: variables.$ink;
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(54, 48, 98, 0.25);
+
+        &:hover:not(:disabled) {
+            background: variables.$ink-deep;
+            box-shadow: 0 10px 24px rgba(54, 48, 98, 0.30);
+        }
+    }
+
+    &--outline {
+        background: transparent;
+        color: variables.$ink;
+        border: 1.5px solid variables.$ink;
+
+        &:hover:not(:disabled) {
+            background: variables.$plume-tint;
+        }
+    }
+
+    &--ghost {
+        background: none;
+        color: variables.$plume;
+
+        &:hover:not(:disabled) {
+            color: variables.$ink;
+        }
+    }
+
+    &--small {
+        height: 34px;
+        padding: 0 14px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+}

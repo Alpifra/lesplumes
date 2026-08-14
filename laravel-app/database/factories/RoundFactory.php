@@ -17,10 +17,17 @@ class RoundFactory extends Factory
      */
     public function definition(): array
     {
+        // Center the deadline around "now" so the seeded set holds a
+        // healthy mix of ongoing ("en-cours") and finished ("termine") rounds.
+        $end   = fake()->dateTimeBetween('-1 month', '+1 month');
+        $start = (clone $end)->modify('-2 weeks');
+
         return [
             'master_id' => User::factory(),
             'word'      => fake()->word(),
-            'created_at'=> fake()->dateTime()
+            'start_at'  => $start,
+            'end_at'    => $end,
+            'created_at'=> now(),
         ];
     }
 }

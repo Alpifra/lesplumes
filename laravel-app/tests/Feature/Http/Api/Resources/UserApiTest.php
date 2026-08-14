@@ -73,12 +73,29 @@ class UserApiTest extends TestCase
     /**
      * @test
      * @group api
+     * @group apiGet
+     * @group user
+     */
+    public function a_user_can_read_another_plume(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get("/api/users/{$other->user_name}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.id', $other->id);
+    }
+
+    /**
+     * @test
+     * @group api
      * @group apiPatch
      * @group user
      */
     public function patch_user(): void
     {
-        $user = User::all()->first();
+        $user = User::factory()->create();
 
         $first_name = fake()->firstName();
         $last_name = fake()->firstName();
@@ -115,5 +132,33 @@ class UserApiTest extends TestCase
             ->delete("/api/users/{$user->id}");
 
         $response->assertStatus(204);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group user
+     */
+    public function a_user_cannot_patch_or_delete_another_plume(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch("/api/users/{$other->id}", [
+                'first_name' => fake()->firstName(),
+                'last_name'  => fake()->firstName(),
+                'user_name'  => fake()->unique()->userName(),
+            ])
+            ->assertStatus(403);
+
+        $this->actingAs($user)
+            ->delete("/api/users/{$other->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('users', [
+            'id'        => $other->id,
+            'user_name' => $other->user_name,
+        ]);
     }
 }

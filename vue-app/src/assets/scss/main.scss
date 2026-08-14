@@ -1,15 +1,34 @@
-// imports
-@import 'partials/variables';
-@import 'partials/fonts';
-@import 'partials/reset';
-@import 'partials/typography';
-@import 'partials/keyframes';
-@import 'partials/layout';
-@import 'partials/forms';
+// partials
+@use 'partials/variables';
+@use 'partials/fonts';
+@use 'partials/reset';
+@use 'partials/typography';
+@use 'partials/keyframes';
+@use 'partials/layout';
+@use 'partials/forms';
 
-// components
-@import 'components/form.scss';
-@import 'components/nav.scss';
+// atoms
+@use 'components/atoms/button';
+@use 'components/atoms/pill';
+@use 'components/atoms/input';
+
+// molecules
+@use 'components/molecules/avatar';
+@use 'components/molecules/kpi-card';
+
+// organisms
+@use 'components/organisms/sidebar';
+@use 'components/organisms/topbar';
 
 // pages
-@import 'pages/login.scss';
+@use 'pages/pages';
+@use 'pages/additions';
+@use 'pages/responsive';
+
+// global card utility
+.card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: variables.$shadow-card;
+    position: relative;
+}

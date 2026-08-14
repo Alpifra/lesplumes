@@ -20,13 +20,23 @@ export function useStorageUser(): User | null {
 
     const storedUser = localStorage.getItem('user');
 
-    return storedUser ? JSON.parse(storedUser) as User : null;
+    if (!storedUser) return null;
+
+    try {
+        return JSON.parse(storedUser) as User;
+    } catch {
+        localStorage.removeItem('user');
+        return null;
+    }
 }
 
 export async function useUser(username: string): Promise<User> {
 
     const user = await useFetch(routePrefix + "/" + username, METHODS.GET);
-    localStorage.setItem('user', JSON.stringify(user.data));
+
+    if (user.data) {
+        localStorage.setItem('user', JSON.stringify(user.data));
+    }
 
     return user.data as User;
 }

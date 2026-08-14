@@ -22,7 +22,11 @@ class RoundResource extends JsonResource
             'id'           => $this->id,
             'master'       => new UserResource($this->master),
             'participants' => new UserCollection($this->participants),
+            'stories'      => new StoryCollection($this->roundStories),
             'word'         => $this->word,
+            'status'       => $this->status,
+            'start_at'     => $this->start_at,
+            'end_at'       => $this->end_at,
             'created_at'   => $this->created_at,
         ];
     }

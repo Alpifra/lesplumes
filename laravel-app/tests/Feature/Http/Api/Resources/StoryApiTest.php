@@ -39,6 +39,7 @@ class StoryApiTest extends TestCase
         $story = Story::factory()
             ->has(Media::factory())
             ->create();
+        $story->round->participants()->attach($user);
 
         $response = $this->actingAs($user)
             ->get("/api/rounds/{$story->round->id}/stories");
@@ -60,10 +61,11 @@ class StoryApiTest extends TestCase
      */
     public function get_story(): void
     {
-        $user = User::factory()->create(); 
+        $user = User::factory()->create();
         $story = Story::factory()
             ->has(Media::factory())
             ->create();
+        $story->round->participants()->attach($user);
 
         $response = $this->actingAs($user)
             ->get("/api/rounds/{$story->round->id}/stories/{$story->id}");
@@ -78,17 +80,60 @@ class StoryApiTest extends TestCase
     /**
      * @test
      * @group api
+     * @group apiGet
+     * @group story
+     */
+    public function an_outsider_cannot_read_the_texts_of_a_round(): void
+    {
+        $intruder = User::factory()->create();
+        $story = Story::factory()
+            ->has(Media::factory())
+            ->create();
+
+        $this->actingAs($intruder)
+            ->get("/api/rounds/{$story->round->id}/stories")
+            ->assertStatus(403);
+
+        $this->actingAs($intruder)
+            ->get("/api/rounds/{$story->round->id}/stories/{$story->id}")
+            ->assertStatus(403);
+    }
+
+    /**
+     * @test
+     * @group api
      * @group apiDelete
      * @group story
      */
     public function delete_story()
     {
-        $user = User::factory()->create();
         $story = Story::factory()->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($story->writer)
             ->delete("/api/rounds/{$story->round->id}/stories/{$story->id}");
 
         $response->assertStatus(204);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group story
+     */
+    public function only_the_author_can_delete_a_text(): void
+    {
+        $story = Story::factory()->create();
+        $master = $story->round->master;
+        $participant = User::factory()->create();
+        $story->round->participants()->attach($participant);
+
+        foreach ([$master, $participant] as $intruder) {
+            $this->actingAs($intruder)
+                ->delete("/api/rounds/{$story->round->id}/stories/{$story->id}")
+                ->assertStatus(403);
+        }
+
+        $this->assertDatabaseHas('stories', ['id' => $story->id]);
     }
 }

@@ -7,6 +7,15 @@ interface loginData {
     password: string
 }
 
+export interface registerData {
+    first_name: string,
+    last_name: string,
+    user_name: string,
+    email: string,
+    password: string,
+    password_confirmation: string,
+}
+
 const appEndpoint = import.meta.env.VITE_APPLICATION_ENDPOINT;
 
 const getCookie = (cookieName: string) => {
@@ -31,10 +40,8 @@ const removeCookie = (cookieName: string) => {
 
 export async function useXsrfToken() {
 
-    const token = getCookie('XSRF-TOKEN');
-
-    if (token) return token;
-
+    // Always refresh the CSRF cookie: a cached XSRF-TOKEN can go stale
+    // (session reset, expiry, migrate:fresh…) and would then trigger a 419.
     const credentials: RequestCredentials = 'include';
     const request = {
         method: METHODS.GET,
@@ -42,9 +49,7 @@ export async function useXsrfToken() {
         headers: { 'Content-Type': 'application/json' }
     };
 
-    const response: any = await fetch(appEndpoint + '/sanctum/csrf-cookie', request)
-        .then(res => res)
-        .then(content => content);
+    const response = await fetch(appEndpoint + '/sanctum/csrf-cookie', request);
 
     if (!response.ok) console.log(response);
 
@@ -61,6 +66,23 @@ export async function useLogin(data: loginData) {
     return useUser(data.username);
 }
 
+export async function useRegister(data: registerData) {
+
+    const token = await useXsrfToken();
+    const register = await useFetch('/register', METHODS.POST, data, { 'X-XSRF-TOKEN': token ?? '' });
+
+    if (register.errors) return register;
+
+    return useUser(data.user_name);
+}
+
+export async function useForgotPassword(email: string) {
+
+    const token = await useXsrfToken();
+
+    return useFetch('/forgot-password', METHODS.POST, { email }, { 'X-XSRF-TOKEN': token ?? '' });
+}
+
 export async function useLogout() {
 
     const token = await useXsrfToken();
@@ -69,7 +91,7 @@ export async function useLogout() {
     if (logout.errors) return logout;
 
     localStorage.removeItem('user');
-    removeCookie('X-XSRF-TOKEN');
+    removeCookie('XSRF-TOKEN');
 
     router.push('/connexion').then(() => window.location.reload());
 };

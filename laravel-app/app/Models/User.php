@@ -84,6 +84,6 @@ class User extends Authenticatable
      */
     public function participantRounds(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(Round::class);
     }
 }

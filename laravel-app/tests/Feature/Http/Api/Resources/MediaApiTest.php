@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Api\Resources;
 
 use App\Models\Media;
+use App\Models\Round;
 use App\Models\Story;
 use App\Models\User;
 use Database\Factories\MediaFactory;
@@ -39,10 +40,11 @@ class MediaApiTest extends TestCase
      */
     public function get_media(): void
     {
-        $user = User::factory()->create(); 
+        $user = User::factory()->create();
         $story = Story::factory()
             ->has(Media::factory())
             ->create();
+        $story->round->participants()->attach($user);
 
         $response = $this->actingAs($user)
             ->get("/api/stories/{$story->id}/media");
@@ -64,7 +66,11 @@ class MediaApiTest extends TestCase
     public function post_media()
     {
         $user = User::factory()->create();
-        $story = Story::all()->first();
+        $round = Round::factory()->create([
+            'start_at' => now()->subWeek(),
+            'end_at'   => now()->addWeek(),
+        ]);
+        $story = Story::factory()->for($round)->create(['writer_id' => $user->id]);
         $file = MediaFactory::createFile();
 
         $response = $this->actingAs($user)
@@ -92,7 +98,11 @@ class MediaApiTest extends TestCase
     public function patch_media()
     {
         $user = User::factory()->create();
-        $story = Story::all()->first();
+        $round = Round::factory()->create([
+            'start_at' => now()->subWeek(),
+            'end_at'   => now()->addWeek(),
+        ]);
+        $story = Story::factory()->for($round)->has(Media::factory())->create(['writer_id' => $user->id]);
         $file = MediaFactory::createFile();
 
         $response = $this->actingAs($user)
@@ -119,11 +129,58 @@ class MediaApiTest extends TestCase
     public function delete_media()
     {
         $user = User::factory()->create();
-        $story = Story::all()->first();
+        $story = Story::factory()
+            ->has(Media::factory())
+            ->create(['writer_id' => $user->id]);
 
         $response = $this->actingAs($user)
             ->delete("/api/stories/{$story->id}/media/{$story->media->id}");
 
         $response->assertStatus(204);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group media
+     */
+    public function only_the_author_can_replace_or_delete_a_media(): void
+    {
+        $round = Round::factory()->create([
+            'start_at' => now()->subWeek(),
+            'end_at'   => now()->addWeek(),
+        ]);
+        $story = Story::factory()->for($round)->has(Media::factory())->create();
+        $intruder = User::factory()->create();
+        $round->participants()->attach($intruder);
+
+        $this->actingAs($intruder)
+            ->patch("/api/stories/{$story->id}/media/{$story->media->id}", [
+                'file' => MediaFactory::createFile(),
+            ])
+            ->assertStatus(403);
+
+        $this->actingAs($intruder)
+            ->delete("/api/stories/{$story->id}/media/{$story->media->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('medias', ['id' => $story->media->id]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group media
+     */
+    public function an_outsider_cannot_read_a_media(): void
+    {
+        $intruder = User::factory()->create();
+        $story = Story::factory()
+            ->has(Media::factory())
+            ->create();
+
+        $this->actingAs($intruder)
+            ->get("/api/stories/{$story->id}/media")
+            ->assertStatus(403);
     }
 }

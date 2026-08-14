@@ -1,0 +1,19 @@
+@use "../../partials/variables";
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: variables.$base-font-sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+
+    &--success { background: variables.$success-bg; color: variables.$success; }
+    &--error   { background: variables.$error-bg;   color: variables.$error; }
+    &--warn    { background: variables.$warning-bg; color: #8A6D10; }
+    &--neutral { background: variables.$plume-tint; color: variables.$ink; }
+}

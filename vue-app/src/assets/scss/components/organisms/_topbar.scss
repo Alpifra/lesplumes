@@ -1,0 +1,88 @@
+@use "../../partials/variables";
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 80px;
+    border-bottom: 1px solid rgba(54, 48, 98, 0.06);
+    background: transparent;
+    flex-shrink: 0;
+
+    &__heading {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        margin: 0;
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 30px;
+        color: variables.$ink;
+        letter-spacing: -0.01em;
+    }
+
+    &__subtitle {
+        font-family: variables.$font-script;
+        font-size: 18px;
+        color: variables.$plume;
+        margin-top: -2px;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    &__bell {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid variables.$rule;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        color: variables.$ink;
+
+        svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+    }
+
+    &__bell-dot {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: variables.$highlight;
+    }
+
+    // Burger: same footprint as the bell, revealed only on mobile where the
+    // sidebar becomes an off-canvas drawer (see _responsive.scss).
+    &__burger {
+        display: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid variables.$rule;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: variables.$ink;
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+}

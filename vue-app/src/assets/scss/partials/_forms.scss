@@ -1,3 +1,5 @@
+@use "variables";
+
 form,
 fieldset {
     margin: 0;
@@ -18,22 +20,22 @@ textarea {
     -webkit-appearance: none;
     -webkit-border-radius: 0;
     box-sizing: border-box;
-    padding: $form-element-padding;
+    padding: variables.$form-element-padding;
     min-width: fit-content;
     width: 100%;
     padding: .9rem .8rem;
     margin-bottom: 1rem;
-    background-color: $background;
-    border-radius: $border-radius;
+    background-color: variables.$background;
+    border-radius: variables.$border-radius;
     border-width: 1px;
     border-style: solid;
-    border-color: $border;
-    color: $text;
+    border-color: variables.$border;
+    color: variables.$text;
     font-size: .9rem;
     display: block;
 
     &:focus, &:focus-visible, &:active {
-        outline-color: $form-element-focus-border-color;
+        outline-color: variables.$form-element-focus-border-color;
         outline-width: 1px;
         outline-style: solid;
     }
@@ -56,21 +58,21 @@ input[type='submit'] {
     -webkit-appearance: none;
     -webkit-border-radius: 0;
     cursor: pointer;
-    color: $neutral;
-    font-size: $btn-font-size;
-    background-color: $primary;
+    color: variables.$neutral;
+    font-size: variables.$btn-font-size;
+    background-color: variables.$primary;
     padding: .6rem 1.5rem;
-    border-radius: $border-radius;
-    transition: ease background-color $transition-speed;
+    border-radius: variables.$border-radius;
+    transition: ease background-color variables.$transition-speed;
 
     &:focus, &:focus-visible, &:active {
-        outline-color: $form-element-focus-border-color;
+        outline-color: variables.$form-element-focus-border-color;
         outline-width: 1px;
         outline-style: solid;
     }
 
     &:disabled {
-        background-color: $primary-2;
+        background-color: variables.$primary-2;
         cursor: not-allowed;
     }
 }
@@ -85,7 +87,7 @@ label {
 .error {
 
     input, textarea {
-        outline-color: $error;
+        outline-color: variables.$error;
         outline-width: 1px;
         outline-style: solid;
     }

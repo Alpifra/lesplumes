@@ -20,8 +20,9 @@ class StoryResource extends JsonResource
     {
         return [
             'id'         => $this->id,
+            'title'      => $this->title,
             'writer'     => new UserResource($this->writer),
-            'media'      => new MediaResource($this->media),
+            'media'      => new MediaResource($this->media?->setRelation('story', $this->resource)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

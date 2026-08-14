@@ -1,0 +1,266 @@
+@use "../partials/variables";
+
+// ============================================================
+// Responsive — tablet (≤1024) & mobile (≤640)
+// Mirrors the mobile/tablet mockups. Kept in one file so the whole
+// responsive layer is easy to review and revert.
+//   Tablet : sidebar → 84px icon rail.
+//   Mobile : sidebar → bottom tab bar; tables → card lists.
+// ============================================================
+
+// ------------------------------------------------------------
+// TABLET — sidebar collapses to an icon rail (84px)
+// ------------------------------------------------------------
+@media (max-width: #{variables.$bp-tablet}) {
+    .sidebar {
+        width: 84px;
+        padding: 22px 0 16px;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sidebar__wordmark {
+        padding: 0 0 18px;
+        display: flex;
+        justify-content: center;
+    }
+
+    // Keep the logo, drop the "Les Plumes" wordmark text.
+    .wordmark { gap: 0; justify-content: center; }
+    .wordmark__text { display: none; }
+
+    .sidebar__nav { width: 100%; align-items: center; }
+
+    .sidebar__link {
+        flex-direction: column;
+        gap: 4px;
+        width: 60px;
+        height: 54px;
+        padding: 0;
+        margin: 0 auto;
+        border-radius: 12px;
+        justify-content: center;
+        font-size: 9.5px;
+        text-align: center;
+    }
+
+    .sidebar__link-indicator { display: none !important; }
+
+    // Profile → just the avatar, centered at the bottom of the rail.
+    .sidebar__profile {
+        position: static;
+        width: auto;
+        margin-top: auto;
+        padding: 0;
+        background: none;
+        border: none;
+        backdrop-filter: none;
+        justify-content: center;
+    }
+
+    .sidebar__profile-info,
+    .sidebar__profile-logout { display: none; }
+
+    .topbar { padding: 0 24px; }
+
+    // Home page: the fixed 320px KPI column no longer fits next to the
+    // main column at tablet widths, so stack both columns instead.
+    // minmax(0, 1fr): a bare 1fr track keeps an automatic min size based on
+    // its content (the table below), which pushes this column wider than
+    // the viewport instead of letting it shrink and scroll internally.
+    .home-content {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    // Les plumes: 3 fixed-fraction columns get squeezed down to ~1/3 of
+    // the tablet width, too narrow for the avatar + name + button inside
+    // each card. Drop to 2 columns (minmax(0, ...) for the same reason as
+    // .home-content above).
+    .plumes-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    // Auth: below the tablet breakpoint the 540px hero leaves too little room
+    // for the 420px form, so drop it and give the form the full width.
+    .auth-hero {
+        display: none;
+    }
+
+    .auth-form-panel {
+        padding: 48px 24px;
+    }
+}
+
+// ------------------------------------------------------------
+// MOBILE — sidebar becomes a sticky bottom tab bar
+// ------------------------------------------------------------
+@media (max-width: #{variables.$bp-mobile}) {
+    // Sidebar becomes an off-canvas drawer opened by the top bar burger
+    // (useMobileNav). Restore the full desktop look — undoing the tablet
+    // icon-rail collapse that also matches at this width — and slide it in
+    // from the left over a scrim.
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        width: min(80vw, 300px);
+        height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 36px 16px 24px;
+        gap: 10px;
+        border-right: 1px solid rgba(54, 48, 98, 0.08);
+        border-top: none;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+
+    .sidebar--open {
+        transform: translateX(0);
+    }
+
+    .sidebar__wordmark {
+        display: block;
+        padding: 0 8px 18px;
+    }
+
+    .wordmark { gap: 10px; justify-content: flex-start; }
+    .wordmark__text { display: flex; }
+
+    .sidebar__nav {
+        flex-direction: column;
+        width: auto;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .sidebar__link {
+        flex: none;
+        flex-direction: row;
+        gap: 12px;
+        width: auto;
+        height: 46px;
+        margin: 0;
+        padding: 0 14px 0 18px;
+        border-radius: 10px;
+        justify-content: flex-start;
+        font-size: 14.5px;
+        text-align: left;
+    }
+
+    // Profile sits at the bottom of the drawer, static so it slides with it
+    // instead of staying pinned to the viewport like the desktop fixed one.
+    .sidebar__profile {
+        display: flex;
+        position: static;
+        margin-top: auto;
+        width: auto;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(54, 48, 98, 0.08);
+        backdrop-filter: blur(6px);
+        justify-content: flex-start;
+    }
+
+    .sidebar__profile-info { display: block; }
+    .sidebar__profile-logout { display: flex; }
+
+    // Dimmed backdrop behind the drawer; click to close (handled in the aside).
+    .sidebar-scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(32, 29, 59, 0.45);
+        z-index: 190;
+    }
+
+    .topbar__burger { display: flex; }
+
+    .topbar { height: 64px; padding: 0 14px; }
+    .topbar__title { font-size: 22px; }
+
+    // No more bottom tab bar to clear, so trim the extra bottom padding.
+    .page-content { padding: 16px 14px 40px; }
+    .home-content { padding: 16px 14px 40px; }
+
+    // Les plumes: single column at mobile width (overrides the tablet
+    // 2-column rule above, since this query also matches).
+    .plumes-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    // Containers: desktop padding (30-40px) eats too much of a mobile
+    // screen's width. Trim every card/section's own padding down closer
+    // to the data-table's 20px so content gets the full viewport width.
+    .home-session-card { padding: 20px 18px 22px; }
+    .home-past-card__table { margin: 4px 18px 22px; }
+    .card-header { padding: 20px 18px 0; }
+    .kpi-card { padding: 20px; }
+    .kpi-chart { padding: 18px; }
+    .filter-bar { padding: 14px 16px; }
+    .session-hero { padding: 20px 18px; }
+    .plume-card { padding: 18px; }
+    .modal { padding: 22px; }
+
+    // Tables: columns get squeezed unreadable at this width. Keep every
+    // table at a comfortable natural width and scroll horizontally instead
+    // of shrinking columns. Head and rows share the same min-width so their
+    // (independent) grids still line up column-for-column. .data-table and
+    // .table-scroll are the two wrapper flavours used across pages (see
+    // _pages.scss). 760px (not 640px) leaves room for the __head/__row
+    // column gap so columns keep the same width as before instead of
+    // shrinking to squeeze the gap in.
+    .data-table,
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table__head,
+    .data-table__row {
+        min-width: 760px;
+    }
+
+    // Home hero / card headers: title (or word + meta) and their action
+    // button no longer fit on one row without squeezing/clipping the
+    // button (the card clips overflow, so a squeezed button just gets cut
+    // off instead of wrapping). Stack instead, button first below content.
+    .home-session-card__hero {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+
+        > .btn { width: 100%; }
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        > .btn { width: 100%; }
+    }
+
+    // Filter bar: search + buttons no longer fit on one row, stack instead.
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+
+        &__search,
+        &__dropdown-wrap,
+        > .btn {
+            width: 100%;
+        }
+
+        &__dropdown-wrap > .btn {
+            width: 100%;
+        }
+
+        &__menu {
+            left: 0;
+            right: 0;
+        }
+    }
+}

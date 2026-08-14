@@ -12,6 +12,17 @@ class Story extends Model
     use HasFactory;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'round_id',
+        'writer_id',
+        'title',
+    ];
+
+    /**
      * The round attached to a story.
      */
     public function round(): BelongsTo

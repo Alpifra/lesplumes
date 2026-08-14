@@ -1,47 +1,72 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import { useForgotPassword } from '@/API/useAuth';
+import AuthHero from '@/components/organisms/AuthHero.vue';
 
-import FormComponent from '@/components/form/FormComponent.vue';
-import InputButton from '@/components/form/InputButton.vue';
-import InputText from '@/components/form/InputText.vue'
+const email = ref('');
+const message = ref('');
+const error = ref('');
+const submitting = ref(false);
 
-const applicationName = import.meta.env.VITE_APPLICATION_NAME;
+const onSubmit = async () => {
+    message.value = '';
+    error.value = '';
 
-const onSubmit = () => {
-    console.log('coucou')
-}
+    if (!email.value.trim()) {
+        error.value = 'Veuillez renseigner votre email.';
+        return;
+    }
 
+    submitting.value = true;
+    const result = await useForgotPassword(email.value.trim());
+    submitting.value = false;
+
+    if (result.errors) {
+        error.value = result.errors.message || "L'envoi a échoué.";
+        return;
+    }
+
+    message.value = 'Si un compte existe, un lien de réinitialisation vient d\'être envoyé.';
+    email.value = '';
+};
 </script>
 
 <template>
-    <main class="main reset-password">
-        <aside>
-            <div>
-                <h2>
-                    {{ applicationName }}
-                </h2>
-                <p>
-                    {{ applicationName }} est un collectif d'écriture formé par des amis.es, qui aiment écrire, partager et surtout se raconter des histoires.
-                    Le groupe se retrouve autour de sessions d'écritures partagées avec un thème commun.<br />
+    <div class="auth-stage">
+        <AuthHero />
+
+        <!-- Form panel -->
+        <div class="auth-form-panel">
+            <form class="auth-form" @submit.prevent="onSubmit">
+                <p class="auth-form__eyebrow">Une plume oublieuse</p>
+                <h1 class="auth-form__title">Mot de passe oublié</h1>
+
+                <p class="auth-form__hint">
+                    Saisissez votre email et nous vous enverrons un lien pour choisir un nouveau mot de passe.
                 </p>
-                <p>Un mot pour point de départ et un point pour caractère final.</p>
-            </div>
-            <div class="aside-links">
-                <a href="#">Mentions légales</a>
-            </div>
-        </aside>
-        <div class="login-container">
-            <FormComponent :onSubmit="onSubmit">
-                <h1>Mot de passe oublié</h1>
-                <InputText name="email" placeholder="Email" :required=true />
-                <template #submit>
-                    <InputButton title="Réinitialiser mon mot de passe" :disabled=true shape="primary" size="m" />
-                </template>
-            </FormComponent>
-            <small class="reset-link">
-                <RouterLink :to="{ name: 'Login' }">
-                    Page de connexion
-                </RouterLink>
-            </small>
+
+                <div class="auth-form__fields">
+                    <label class="field-label">
+                        Email
+                        <input v-model="email" class="field" type="email" placeholder="jeanne@plumes.fr" />
+                    </label>
+
+                    <p v-if="message" class="auth-form__hint" style="color:#2E7D5B">{{ message }}</p>
+                </div>
+
+                <p v-if="error" class="auth-form__error">{{ error }}</p>
+
+                <button type="submit" class="btn btn--primary auth-form__submit" :disabled="submitting">
+                    {{ submitting ? 'Envoi…' : 'Réinitialiser mon mot de passe' }}
+                </button>
+
+                <div class="auth-form__switch">
+                    <RouterLink :to="{ name: 'Login' }" class="btn btn--ghost btn--small">
+                        ← Retour à la connexion
+                    </RouterLink>
+                </div>
+            </form>
         </div>
-    </main>
+    </div>
 </template>

@@ -1,0 +1,42 @@
+@use "../../partials/variables";
+
+.kpi-card {
+    padding: 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &__label {
+        font-family: variables.$font-ui;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: variables.$text-soft;
+    }
+
+    &__value {
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 80px;
+        color: variables.$ink;
+        line-height: 1;
+        margin-top: 12px;
+        letter-spacing: -0.02em;
+    }
+
+    &__unit {
+        font-family: variables.$font-script;
+        font-size: 22px;
+        color: variables.$plume;
+        font-weight: 400;
+        vertical-align: baseline;
+    }
+
+    &__caption {
+        font-family: variables.$font-script;
+        font-size: 20px;
+        color: variables.$plume;
+        margin: 6px 0 0;
+    }
+}

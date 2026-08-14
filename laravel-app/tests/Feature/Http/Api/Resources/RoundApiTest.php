@@ -36,11 +36,11 @@ class RoundApiTest extends TestCase
      */
     public function get_round_collection(): void
     {
-        Round::all()->first()->delete(); // remove entries from prev tests
         $user = User::factory()->create();
-        Round::factory()
+        $round = Round::factory()
             ->has(User::factory()->count(2), 'participants')
             ->create();
+        $round->participants()->attach($user);
 
         $response = $this->actingAs($user)
             ->get('/api/rounds');
@@ -60,12 +60,43 @@ class RoundApiTest extends TestCase
      * @group apiGet
      * @group round
      */
+    public function round_collection_only_returns_the_rounds_of_the_authenticated_user(): void
+    {
+        $user = User::factory()->create();
+
+        $participating = Round::factory()->create();
+        $participating->participants()->attach($user);
+
+        $mastering = Round::factory()->create(['master_id' => $user->id]);
+
+        $foreign = Round::factory()
+            ->has(User::factory()->count(2), 'participants')
+            ->create();
+
+        $response = $this->actingAs($user)
+            ->get('/api/rounds');
+
+        $ids = collect($response->assertStatus(200)->json('data'))->pluck('id');
+
+        $this->assertContains($participating->id, $ids);
+        $this->assertContains($mastering->id, $ids);
+        $this->assertNotContains($foreign->id, $ids);
+        $this->assertSame(2, $response->json('meta.total'));
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiGet
+     * @group round
+     */
     public function get_round(): void
     {
-        $user = User::factory()->create(); 
+        $user = User::factory()->create();
         $round = Round::factory()
             ->has(User::factory()->count(2), 'participants')
             ->create();
+        $round->participants()->attach($user);
 
         $response = $this->actingAs($user)
             ->get("/api/rounds/{$round->id}");
@@ -75,6 +106,24 @@ class RoundApiTest extends TestCase
                 $json->has('data')
                      ->has('data', fn (AssertableJson $json) => self::assert_round_json($json))
         );
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiGet
+     * @group round
+     */
+    public function an_outsider_cannot_get_a_round(): void
+    {
+        $intruder = User::factory()->create();
+        $round = Round::factory()
+            ->has(User::factory()->count(2), 'participants')
+            ->create();
+
+        $this->actingAs($intruder)
+            ->get("/api/rounds/{$round->id}")
+            ->assertStatus(403);
     }
 
     /**
@@ -119,7 +168,7 @@ class RoundApiTest extends TestCase
         $user = User::factory()->create();
         $round = Round::factory()
             ->has(User::factory()->count(2), 'participants')
-            ->create();
+            ->create(['master_id' => $user->id]);
 
         $word = fake()->word();
         $master = User::factory()->create();
@@ -153,11 +202,37 @@ class RoundApiTest extends TestCase
     public function delete_round()
     {
         $user = User::factory()->create();
-        $round = Round::factory()->create();
+        $round = Round::factory()->create(['master_id' => $user->id]);
 
         $response = $this->actingAs($user)
             ->delete("/api/rounds/{$round->id}");
 
         $response->assertStatus(204);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function only_the_master_can_patch_or_delete_a_round(): void
+    {
+        $participant = User::factory()->create();
+        $round = Round::factory()->create();
+        $round->participants()->attach($participant);
+
+        $this->actingAs($participant)
+            ->patch("/api/rounds/{$round->id}", [
+                'word'         => fake()->word(),
+                'master'       => $participant->id,
+                'participants' => [User::factory()->create()->id],
+            ])
+            ->assertStatus(403);
+
+        $this->actingAs($participant)
+            ->delete("/api/rounds/{$round->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('rounds', ['id' => $round->id]);
     }
 }

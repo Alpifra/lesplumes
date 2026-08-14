@@ -18,7 +18,8 @@ router.beforeEach(to => {
 
         return router.push({ name: 'Login' });
 
-    // TODO: add expiration token condition
+    // A 401 from the API clears localStorage.user (see useApi), so an
+    // expired server session is caught on the next navigation.
 
     // redirect to home if try to access login while auth
     } else if (

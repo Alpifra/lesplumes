@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MediaResource;
 use App\Models\Media;
 use App\Models\Story;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -16,6 +15,8 @@ class MediaController extends Controller
      */
     public function index(Story $story): MediaResource
     {
+        $this->authorize('view', $story);
+
         return new MediaResource($story->media);
     }
 
@@ -24,28 +25,13 @@ class MediaController extends Controller
      */
     public function store(Request $request, Story $story): MediaResource
     {
-        $request = Media::validate($request);
-        $now = new Carbon;
-        $file = $request->file;
-        $filename = md5($file->getFilename());
+        $this->authorize('update', $story);
 
-        $media = new Media;
-        $media->disk = 'medias';
-        $media->directory = 'stories';
-        $media->filename = $filename;
-        $media->extension = $file->getExtension();
-        $media->mime_type = $file->getMimeType();
-        $media->aggregate_type = $file->getExtension();
-        $media->size = $file->getMaxFilesize();
-        $media->created_at = $now;
-        $media->updated_at = $now;
-        $media->story_id = $story->id;
-        $media->save();
+        abort_if($story->round?->status === 'termine', 403, 'Cette session est terminée.');
 
-        $file->storePubliclyAs(
-            'uploads/stories/',
-            $filename . '.' . $media->extension,
-        );
+        Media::validate($request);
+
+        $media = Media::storeForStory($story, $request->file('file'));
 
         return new MediaResource($media);
     }
@@ -55,6 +41,8 @@ class MediaController extends Controller
      */
     public function show(Story $story, Media $media): MediaResource
     {
+        $this->authorize('view', $story);
+
         if ($story->id !== $media->story?->id) abort(404);
 
         return new MediaResource($story->media);
@@ -65,27 +53,15 @@ class MediaController extends Controller
      */
     public function update(Request $request, Story $story): MediaResource
     {
-        $request = Media::validate($request);
+        $this->authorize('update', $story);
 
-        $now = new Carbon;
-        $file = $request->file;
-        $filename = md5($file->getFilename());
-        $media = $story->media;
+        abort_if($story->round?->status === 'termine', 403, 'Cette session est terminée.');
 
-        if (!$media) abort(404);
+        if (!$story->media) abort(404);
 
-        $media->filename = $filename;
-        $media->extension = $file->getExtension();
-        $media->mime_type = $file->getMimeType();
-        $media->aggregate_type = $file->getExtension();
-        $media->size = $file->getMaxFilesize();
-        $media->updated_at = $now;
-        $media->save();
+        Media::validate($request);
 
-        $file->storePubliclyAs(
-            'uploads/stories/',
-            $filename . '.' . $media->extension,
-        );
+        $media = Media::storeForStory($story, $request->file('file'));
 
         return new MediaResource($media);
     }
@@ -95,6 +71,8 @@ class MediaController extends Controller
      */
     public function destroy(Story $story): Response
     {
+        $this->authorize('delete', $story);
+
         if (!$media = $story->media) abort(404);
 
         $media->delete();

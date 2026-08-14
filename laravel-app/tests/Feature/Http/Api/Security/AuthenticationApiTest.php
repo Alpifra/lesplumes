@@ -26,7 +26,7 @@ class AuthenticationApiTest extends TestCase
         $this->seed();
 
         $response = $this->postJson('/api/login', [
-            'email'    => 'admin@email.com',
+            'username' => 'admin@email.com',
             'password' => 'password'
         ]);
 
@@ -43,7 +43,7 @@ class AuthenticationApiTest extends TestCase
     public function user_cannot_login_with_wrong_credentials(): void
     {
         $response = $this->postJson('/api/login', [
-            'email'    => 'wrong@email.com',
+            'username' => 'wrong@email.com',
             'password' => 'password'
         ]);
 
@@ -51,8 +51,8 @@ class AuthenticationApiTest extends TestCase
         $response->assertJson( fn (AssertableJson $json) =>
             $json->has('message')
                  ->has('errors', fn (AssertableJson $json) =>
-                    $json->has('email')
-                         ->where('email', [0 => 'These credentials do not match our records.'])
+                    $json->has('username')
+                         ->where('username', [0 => 'These credentials do not match our records.'])
                     )
         );
     }

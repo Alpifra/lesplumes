@@ -1,0 +1,11 @@
+@use "../../partials/variables";
+
+.user-avatar {
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: variables.$font-display;
+    font-weight: 700;
+    flex-shrink: 0;
+}

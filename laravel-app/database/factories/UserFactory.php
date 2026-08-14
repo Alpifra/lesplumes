@@ -20,11 +20,17 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // The `testing` database is persistent and the tests do not reset it,
+        // while Faker's `unique()` memory is rebuilt with the application on
+        // every test. A time-based suffix is what actually keeps the handle
+        // free of collisions against the rows left by the previous tests.
+        $handle = fake()->userName() . '_' . uniqid();
+
         return [
             'first_name'     => fake()->firstName(),
             'last_name'      => fake()->firstName(),
-            'user_name'      => fake()->unique()->userName(),
-            'email'          => fake()->unique()->safeEmail(),
+            'user_name'      => $handle,
+            'email'          => $handle . '@example.com',
             'password'       => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];

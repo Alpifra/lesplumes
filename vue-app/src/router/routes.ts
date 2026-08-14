@@ -1,6 +1,10 @@
 import LoginView from "@/views/Auth/LoginView.vue";
+import SignupView from "@/views/Auth/SignupView.vue";
 import ResetPasswordVue from "@/views/Auth/ResetPasswordVue.vue";
 import HomeView from "@/views/HomeView.vue";
+import SessionsView from "@/views/SessionsView.vue";
+import SessionDetailView from "@/views/SessionDetailView.vue";
+import PlumesView from "@/views/PlumesView.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 const navRoutes: RouteRecordRaw[] = [
@@ -10,14 +14,19 @@ const navRoutes: RouteRecordRaw[] = [
         component: HomeView,
     },
     {
-        path: "/session",
+        path: "/sessions",
         name: "Session",
-        component: HomeView,
+        component: SessionsView,
+    },
+    {
+        path: "/sessions/:id",
+        name: "SessionDetail",
+        component: SessionDetailView,
     },
     {
         path: "/les-plumes",
         name: "Les Plumes",
-        component: HomeView,
+        component: PlumesView,
     },
 ];
 
@@ -28,21 +37,20 @@ const loginRoutes: RouteRecordRaw[] = [
         component: LoginView,
     },
     {
+        path: "/inscription",
+        name: "Signup",
+        component: SignupView,
+    },
+    {
         path: "/mot-de-passe-oublie",
         name: "Reset Password",
         component: ResetPasswordVue,
     },
-]
+];
 
-// list of all routes
 const allRoutes: RouteRecordRaw[] = [
     ...navRoutes,
     ...loginRoutes,
-    {
-        path: "/profil",
-        name: "Profile",
-        component: HomeView,
-    }
 ];
 
 export { navRoutes, loginRoutes, allRoutes };

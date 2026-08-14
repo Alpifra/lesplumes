@@ -1,0 +1,42 @@
+@use "../../partials/variables";
+
+// partials/_forms.scss styles bare `input[type=…]` selectors, which outrank a
+// lone `.field` class — anchor on the element so this atom wins the cascade.
+input.field,
+.field {
+    height: 52px;
+    padding: 0 16px;
+    margin-bottom: 0;
+    border-radius: 10px;
+    background: #fff;
+    border: 1.5px solid variables.$rule;
+    width: 100%;
+    font-family: variables.$base-font-sans-serif;
+    font-size: 15px;
+    color: variables.$text;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+        outline: none;
+        border-color: variables.$plume;
+        box-shadow: 0 0 0 4px rgba(146, 85, 253, 0.12);
+    }
+
+    &::placeholder {
+        color: variables.$text-mute;
+        font-style: italic;
+    }
+}
+
+.field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    // Reset the generic `label` margins from partials/_forms.scss — spacing
+    // here comes from the parent's flex gap.
+    margin: 0;
+    font-family: variables.$font-ui;
+    font-size: 13px;
+    font-weight: 500;
+    color: variables.$text;
+}

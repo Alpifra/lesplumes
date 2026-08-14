@@ -1,3 +1,5 @@
+@use "variables";
+
 // Layout variables
 $left-margin: 10px;
 
@@ -17,10 +19,10 @@ $left-margin: 10px;
         margin-left: calc($left-margin * -1);
         padding-block: 2rem;
         padding-inline: calc(1.5rem + $left-margin) 1.5rem;
-        background-color: $background;
+        background-color: variables.$background;
 
         h1 {
-            color: $primary;
+            color: variables.$primary;
         }
     }
 }
@@ -28,9 +30,9 @@ $left-margin: 10px;
 .container {
     padding-block: 2.5rem;
     padding-inline: 2rem;
-    background-color: $neutral;
-    border-radius: $border-radius;
-    box-shadow: $box-shadow;
+    background-color: variables.$neutral;
+    border-radius: variables.$border-radius;
+    box-shadow: variables.$box-shadow;
 
     .container-subtitle {
         font-weight: normal;

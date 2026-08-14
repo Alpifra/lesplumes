@@ -1,0 +1,210 @@
+@use "../../partials/variables";
+
+.sidebar {
+    width: 230px;
+    min-height: 100vh;
+    padding: 36px 16px 24px;
+    background: linear-gradient(180deg, #F0EEFA 0%, #E7E7F4 100%);
+    border-right: 1px solid rgba(54, 48, 98, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    flex-shrink: 0;
+
+    &__decor {
+        position: absolute;
+        top: -40px;
+        right: -30px;
+        opacity: 0.25;
+        pointer-events: none;
+    }
+
+    &__wordmark {
+        padding: 0 8px 18px;
+        position: relative;
+        z-index: 1;
+    }
+
+    &__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        position: relative;
+        z-index: 1;
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 46px;
+        padding: 0 14px 0 18px;
+        border-radius: 10px;
+        background: transparent;
+        color: variables.$text;
+        font-family: variables.$font-ui;
+        font-weight: 500;
+        font-size: 14.5px;
+        text-decoration: none;
+        position: relative;
+        transition: background 0.15s ease, box-shadow 0.15s ease;
+
+        &-indicator {
+            display: none;
+            position: absolute;
+            left: -16px;
+            top: 10px;
+            bottom: 10px;
+            width: 4px;
+            background: variables.$plume;
+            border-radius: 0 4px 4px 0;
+        }
+
+        &--active {
+            background: #fff;
+            color: variables.$ink;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(54, 48, 98, 0.08);
+
+            .sidebar__link-indicator {
+                display: block;
+            }
+
+            .sidebar__icon {
+                color: variables.$plume;
+            }
+        }
+
+        &:hover:not(.sidebar__link--active) {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    &__icon {
+        width: 18px;
+        height: 18px;
+        color: variables.$text-soft;
+        flex-shrink: 0;
+    }
+
+    &__profile {
+        position: fixed;
+        left: 16px;
+        bottom: 24px;
+        width: 198px; // sidebar width (230) minus its horizontal padding (2 * 16)
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(54, 48, 98, 0.08);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+    }
+
+    &__profile-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: variables.$plume;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 17px;
+        flex-shrink: 0;
+    }
+
+    &__profile-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    &__profile-name {
+        font-family: variables.$font-ui;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: variables.$ink;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__profile-role {
+        font-family: variables.$font-script;
+        font-size: 14px;
+        color: variables.$plume;
+        line-height: 1;
+    }
+
+    &__profile-logout {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: variables.$text-mute;
+        transition: color 0.12s ease, background 0.12s ease;
+
+        svg {
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            color: variables.$error;
+            background: rgba(54, 48, 98, 0.05);
+        }
+    }
+}
+
+// Wordmark
+.wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &__logo {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        display: block;
+        flex-shrink: 0;
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.05;
+    }
+
+    &__name {
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 20px;
+        color: variables.$ink;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+    }
+
+    &__tagline {
+        font-family: variables.$font-script;
+        font-size: 13px;
+        color: variables.$plume;
+        margin-top: 2px;
+    }
+
+    // On the auth hero panels the wordmark sits on a dark ink gradient.
+    &--on-dark {
+        .wordmark__name { color: #fff; }
+        .wordmark__tagline { color: variables.$plume-soft; }
+    }
+}
