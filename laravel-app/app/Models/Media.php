@@ -27,7 +27,7 @@ class Media extends MediableMedia
     public static function validate(Request $request): Request
     {
         $request->validate([
-            'file' => 'required|file|mimes:pdf|max:1024'
+            'file' => 'required|file|mimes:pdf|max:2048'
         ]);
 
         return $request;
