@@ -78,7 +78,6 @@ const submit = async () => {
                 </button>
                 <p class="auth-form__eyebrow">Déposer ta plume</p>
                 <h2 class="modal__title">Rédaction « {{ roundWord }} »</h2>
-                <svg viewBox="0 0 220 24" fill="none" style="margin-left:-6px;pointer-events:none"><path d="M 4 14 Q 40 2 82 12 T 166 14 Q 196 14 214 6" stroke="#9255FD" stroke-width="2.2" stroke-linecap="round"/></svg>
 
                 <label class="field-label" style="margin-top:18px">
                     Titre du texte <span class="data-table__muted">(optionnel)</span>
@@ -133,7 +132,7 @@ const submit = async () => {
                 <div class="modal__actions">
                     <button class="btn btn--outline" @click="emit('close')">Annuler</button>
                     <button class="btn btn--primary" :disabled="!uploadedFile || submitting" @click="submit">
-                        {{ submitting ? 'Envoi…' : 'Déposer ma plume' }}
+                        {{ submitting ? 'Envoi…' : 'Déposer mon texte' }}
                     </button>
                 </div>
             </div>

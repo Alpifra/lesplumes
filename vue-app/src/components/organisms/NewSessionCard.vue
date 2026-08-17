@@ -207,7 +207,7 @@ const cancelCompose = () => {
             </div>
             <button class="btn btn--primary" @click="step = 'compose'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:16px;height:16px;pointer-events:none"><path d="M12 5v14M5 12h14"/></svg>
-                Lancer une nouvelle session
+                Nouvelle session
             </button>
         </div>
 

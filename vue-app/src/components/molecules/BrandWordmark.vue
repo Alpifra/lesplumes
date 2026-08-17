@@ -8,7 +8,7 @@ defineProps<{
     <div class="wordmark" :class="{ 'wordmark--on-dark': onDark }">
         <img
             class="wordmark__logo"
-            :src="onDark ? '/logo-w.svg' : '/logo.svg'"
+            :src="onDark ? '/logo-v2-w.svg' : '/logo-v2.svg'"
             alt="Les Plumes"
             width="38"
             height="38"

@@ -165,7 +165,7 @@ onMounted(load);
                                     @click="showUploadModal = true"
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:16px;height:16px"><path d="M12 19V7M6 13l6-6 6 6M4 21h16"/></svg>
-                                    Déposer ma plume
+                                    Déposer mon texte
                                 </button>
                                 <template v-if="myJoker">
                                     <span class="data-table__muted" style="font-size:13px;margin-top:12px;text-align:center">
