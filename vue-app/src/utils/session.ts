@@ -42,7 +42,11 @@ export const depositDate = (round: Round, userId: number): string | null => {
     return story?.media ? story.updated_at : null;
 };
 
-/** The pool the "mot au hasard" button draws from when opening a session. */
+/**
+ * The fallback the "mot au hasard" button falls on when the dictionary is
+ * out of reach — see `useRandomWord`. A handful of words is enough: the
+ * button has to answer something, not to be a dictionary of its own.
+ */
 export const RANDOM_WORDS = [
     'Zinzolin', 'Fanfreluche', 'Chafouin', 'Amphigouri', 'Esbroufe',
     'Guilledou', 'Crépusculaire', 'Balbutier', 'Rocambolesque', 'Fadaise',

@@ -5,6 +5,7 @@ use App\Http\Controllers\RoundController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WordController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->name('api.')->group( function() {
     // Declared before the resource so "next" is not read as a {round} key.
     Route::get('rounds/next', [RoundController::class, 'next'])->name('rounds.next');
     Route::post('rounds/hand-off', [RoundController::class, 'handOff'])->name('rounds.hand-off');
+
+    // The word of the session to come, drawn from the French dictionary.
+    Route::get('words/random', [WordController::class, 'random'])->name('words.random');
 
     Route::get('rounds/{round}/download', [RoundController::class, 'download'])->name('rounds.download');
     Route::post('rounds/{round}/invite', [RoundController::class, 'invite'])->name('rounds.invite');

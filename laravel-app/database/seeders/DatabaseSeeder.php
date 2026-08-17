@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -29,6 +30,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Reference data rather than fixtures, but a fresh install has to
+        // have it before a plume can be offered a word at random.
+        Artisan::call('words:import');
+
         $admin = User::factory()->create([
             'first_name' => 'Alexandre',
             'last_name'  => 'Chauvin',

@@ -5,15 +5,18 @@ import NewSessionCard from '@/components/organisms/NewSessionCard.vue';
 import WaitingSessionCard from '@/components/organisms/WaitingSessionCard.vue';
 import RotationOrder from '@/components/molecules/RotationOrder.vue';
 
-const { createRound, handOff } = vi.hoisted(() => ({
+const { createRound, handOff, randomWord } = vi.hoisted(() => ({
     createRound: vi.fn(),
     handOff: vi.fn(),
+    randomWord: vi.fn(),
 }));
 
 vi.mock('@/API/useRound', () => ({
     useCreateRound: createRound,
     useHandOff: handOff,
 }));
+
+vi.mock('@/API/useWord', () => ({ useRandomWord: randomWord }));
 
 const plume = (id: number, first: string, last: string): User => ({
     id,
@@ -34,6 +37,7 @@ const circle = [
 beforeEach(() => {
     createRound.mockReset();
     handOff.mockReset();
+    randomWord.mockReset();
 });
 
 describe('RotationOrder', () => {
@@ -105,16 +109,33 @@ describe('NewSessionCard', () => {
         expect(wrapper.emitted('launched')?.[0]).toEqual([42]);
     });
 
-    it('fills the input with a random word without opening anything', async () => {
+    it('fills the input with a word of the dictionary without opening anything', async () => {
+        randomWord.mockResolvedValue('Esbroufe');
+
         const wrapper = mountCard();
 
         await wrapper.find('.new-session-card__hero .btn--primary').trigger('click');
         await wrapper.find('.new-session-card__dice').trigger('click');
+        await Promise.resolve();
+        await wrapper.vm.$nextTick();
 
         const input = wrapper.find<HTMLInputElement>('.new-session-card__input');
 
-        expect(input.element.value.length).toBeGreaterThan(0);
+        expect(input.element.value).toBe('Esbroufe');
+        expect(wrapper.find('.new-session-card__counter').text()).toContain('8 lettres');
         expect(createRound).not.toHaveBeenCalled();
+    });
+
+    it('hands the word on screen to the draw, so asking again changes it', async () => {
+        randomWord.mockResolvedValue('Guilledou');
+
+        const wrapper = mountCard();
+
+        await wrapper.find('.new-session-card__hero .btn--primary').trigger('click');
+        await wrapper.find('.new-session-card__input').setValue('Fadaise');
+        await wrapper.find('.new-session-card__dice').trigger('click');
+
+        expect(randomWord).toHaveBeenCalledWith('Fadaise');
     });
 
     it('reports a refused session instead of pretending it opened', async () => {

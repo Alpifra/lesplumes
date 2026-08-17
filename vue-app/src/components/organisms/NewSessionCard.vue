@@ -3,7 +3,8 @@ import { ref, computed } from 'vue';
 import type { User } from '@/API/useUser';
 import type { Round } from '@/API/useRound';
 import { useCreateRound, useHandOff } from '@/API/useRound';
-import { formatDate, randomWord } from '@/utils/session';
+import { formatDate } from '@/utils/session';
+import { useRandomWord } from '@/API/useWord';
 import RotationOrder from '@/components/molecules/RotationOrder.vue';
 import UserAvatar from '@/components/molecules/UserAvatar.vue';
 
@@ -23,12 +24,22 @@ type Step = 'idle' | 'compose' | 'launched';
 
 const step = ref<Step>('idle');
 const word = ref('');
+const drawing = ref(false);
 const handedTo = ref<User | null>(null);
 const submitting = ref(false);
 const error = ref('');
 const createdRoundId = ref<number | null>(null);
 
 const guests = computed(() => props.plumes.filter(plume => plume.id !== props.selector.id));
+
+/** Fill the input with a word of the dictionary nobody has played yet. */
+const draw = async () => {
+    if (drawing.value) return;
+
+    drawing.value = true;
+    word.value = await useRandomWord(word.value.trim());
+    drawing.value = false;
+};
 
 const launch = async () => {
     const chosen = word.value.trim();
@@ -157,9 +168,9 @@ const cancelCompose = () => {
                 placeholder="Écrivez un mot…"
                 @keyup.enter="launch"
             >
-            <button class="btn btn--outline new-session-card__dice" @click="word = randomWord(word)">
+            <button class="btn btn--outline new-session-card__dice" :disabled="drawing" @click="draw">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#9255FD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
-                <span>Mot au hasard</span>
+                <span>{{ drawing ? 'Tirage…' : 'Mot au hasard' }}</span>
             </button>
         </div>
 
