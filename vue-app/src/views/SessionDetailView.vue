@@ -6,11 +6,11 @@ import AppTopBar from '@/components/organisms/AppTopBar.vue';
 import StatusPill from '@/components/atoms/StatusPill.vue';
 import UploadModal from '@/components/organisms/UploadModal.vue';
 import { useStorageUser } from '@/API/useUser';
-import { useRound, useDownloadRoundZip } from '@/API/useRound';
+import { useRound, useDownloadRoundZip, useJoker } from '@/API/useRound';
 import { useDownloadStory } from '@/API/useStory';
 import type { Round } from '@/API/useRound';
 import type { User } from '@/API/useUser';
-import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate, renduCount, daysLeft, awaitedCount } from '@/utils/session';
+import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate, renduCount, daysLeft, awaitedCount, hasJoker } from '@/utils/session';
 
 const route = useRoute();
 const currentUser = useStorageUser();
@@ -28,6 +28,36 @@ const canDeposit = computed(() => {
     const isParticipant = (round.value.participants ?? []).some(p => p.id === currentUser.id);
     return isParticipant || round.value.master?.id === currentUser.id;
 });
+
+const isParticipant = computed(() =>
+    !!round.value && !!currentUser && (round.value.participants ?? []).some(p => p.id === currentUser.id)
+);
+
+// A joker: a convened plume hands nothing in and still reads the others once
+// the session closes. Handing a text in afterwards takes it back.
+const myJoker = computed(() => !!round.value && !!currentUser && hasJoker(round.value, currentUser.id));
+const jokersLeft = computed(() => round.value?.jokers_left ?? 0);
+const canPlayJoker = computed(() =>
+    !!round.value && !!currentUser && !isEnded.value && isParticipant.value
+        && !myJoker.value && !storyFor(round.value, currentUser.id)?.media
+);
+const confirmingJoker = ref(false);
+const jokerError = ref('');
+
+const playJoker = async (withdraw = false) => {
+    if (!round.value) return;
+
+    const response = await useJoker(round.value.id, withdraw);
+    confirmingJoker.value = false;
+
+    if (response.errors || !response.data) {
+        jokerError.value = response.errors?.message || "Le joker n'a pas pu être posé.";
+        return;
+    }
+
+    jokerError.value = '';
+    round.value = response.data;
+};
 
 interface ContributionRow {
     user: User;
@@ -137,6 +167,38 @@ onMounted(load);
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:16px;height:16px"><path d="M12 19V7M6 13l6-6 6 6M4 21h16"/></svg>
                                     Déposer ma plume
                                 </button>
+                                <template v-if="myJoker">
+                                    <span class="data-table__muted" style="font-size:13px;margin-top:12px;text-align:center">
+                                        Joker posé : vous lirez les textes à la clôture.
+                                    </span>
+                                    <button class="btn btn--ghost btn--small" style="margin-top:6px" @click="playJoker(true)">
+                                        Reprendre mon joker
+                                    </button>
+                                </template>
+                                <template v-else-if="canPlayJoker">
+                                    <template v-if="confirmingJoker">
+                                        <span class="data-table__muted" style="font-size:13px;margin-top:12px;text-align:center">
+                                            Ne rien rendre pour cette session ?
+                                        </span>
+                                        <div style="display:flex;gap:8px;margin-top:6px">
+                                            <button class="btn btn--ghost btn--small" @click="confirmingJoker = false">Annuler</button>
+                                            <button class="btn btn--primary btn--small" @click="playJoker()">Poser le joker</button>
+                                        </div>
+                                    </template>
+                                    <button
+                                        v-else
+                                        class="btn btn--outline btn--small"
+                                        style="margin-top:10px;width:100%"
+                                        :disabled="jokersLeft === 0"
+                                        :title="jokersLeft === 0 ? 'Plus de joker cette année' : 'Ne rien rendre et lire les autres à la clôture'"
+                                        @click="confirmingJoker = true"
+                                    >
+                                        Poser un joker · {{ jokersLeft }} {{ jokersLeft > 1 ? 'restants' : 'restant' }} cette année
+                                    </button>
+                                </template>
+                                <span v-if="jokerError" style="color:#EB4B4B;font-size:13px;margin-top:6px;text-align:center">
+                                    {{ jokerError }}
+                                </span>
                             </template>
                             <template v-else>
                                 <div class="session-hero__stamp">CLÔTURÉE</div>
@@ -177,7 +239,7 @@ onMounted(load);
                                 <span style="font-weight:700;color:#363062">{{ row.user.first_name }} {{ row.user.last_name }}</span>
                             </span>
                             <span class="session-detail__title" :class="{ 'data-table__muted': !row.title }">
-                                {{ row.title ? `« ${row.title} »` : (row.status === 'rendu' ? '« Sans titre »' : '— En cours de rédaction —') }}
+                                {{ row.title ? `« ${row.title} »` : (row.status === 'rendu' ? '« Sans titre »' : row.status === 'joker' ? '— Joker —' : '— En cours de rédaction —') }}
                             </span>
                             <span class="data-table__muted">{{ formatDate(row.date) }}</span>
                             <span><StatusPill :status="row.status" /></span>

@@ -45,6 +45,8 @@ class MediaApiTest extends TestCase
             ->has(Media::factory())
             ->create();
         $story->round->participants()->attach($user);
+        // The texts of a session open to the circle once it is over.
+        $story->round->update(['end_at' => now()->subDay()]);
 
         $response = $this->actingAs($user)
             ->get("/api/stories/{$story->id}/media");

@@ -2,6 +2,9 @@ import { useFetch, METHODS } from "./useApi";
 
 export interface Stats {
     avg_writing_days: number,
+    /** Jokers the plume may still play this calendar year. */
+    jokers_left: number,
+    jokers_per_year: number,
 }
 
 /**
@@ -11,5 +14,5 @@ export interface Stats {
 export async function useStats(): Promise<Stats> {
     const response = await useFetch('/stats', METHODS.GET);
 
-    return (response.data as Stats) ?? { avg_writing_days: 0 };
+    return (response.data as Stats) ?? { avg_writing_days: 0, jokers_left: 0, jokers_per_year: 0 };
 }

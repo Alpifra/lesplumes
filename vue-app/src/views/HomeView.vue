@@ -77,6 +77,9 @@ const participationTotal = computed(() => meta.value?.total ?? rounds.value.leng
 // Average writing delay of the current user, computed server-side over every
 // round (see /stats) so it doesn't depend on the paginated rounds loaded here.
 const avgWritingDays = ref(0);
+const jokersLeft = ref(0);
+const jokersPerYear = ref(0);
+const currentYear = new Date().getFullYear();
 
 const allStories = computed<Story[]>(() => rounds.value.flatMap(r => r.stories ?? []));
 
@@ -113,6 +116,8 @@ const load = async () => {
 
     const stats = await useStats();
     avgWritingDays.value = stats.avg_writing_days;
+    jokersLeft.value = stats.jokers_left;
+    jokersPerYear.value = stats.jokers_per_year;
 };
 
 const onDeposited = () => load();
@@ -253,6 +258,12 @@ onMounted(load);
                         <div class="kpi-card__value">{{ participationTotal }}</div>
                         <p class="kpi-card__caption">sessions de rédaction</p>
                         <button class="btn btn--outline btn--small" style="width:100%;margin-top:18px" @click="goToSession">Voir les sessions</button>
+                    </div>
+
+                    <div class="card kpi-card">
+                        <div class="kpi-card__label">Jokers</div>
+                        <div class="kpi-card__value">{{ jokersLeft }}<span class="kpi-card__unit">/{{ jokersPerYear }}</span></div>
+                        <p class="kpi-card__caption">{{ jokersLeft > 1 ? 'restants' : 'restant' }} en {{ currentYear }}</p>
                     </div>
 
                     <div class="card kpi-card" style="text-align:left">

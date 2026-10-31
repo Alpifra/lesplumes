@@ -33,6 +33,7 @@ class MediaController extends Controller
 
         $media = Media::storeForStory($story, $request->file('file'));
 
+        $story->round?->withdrawJoker($request->user());
         $story->round?->closeIfComplete();
 
         return new MediaResource($media);
@@ -65,6 +66,7 @@ class MediaController extends Controller
 
         $media = Media::storeForStory($story, $request->file('file'));
 
+        $story->round?->withdrawJoker($request->user());
         $story->round?->closeIfComplete();
 
         return new MediaResource($media);

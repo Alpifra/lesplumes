@@ -61,6 +61,7 @@ class StoryController extends Controller
 
         Media::storeForStory($story, $request->file('file'));
 
+        $round->withdrawJoker($user);
         $round->closeIfComplete();
 
         return (new StoryResource($story->fresh(['writer', 'media'])))
@@ -73,7 +74,7 @@ class StoryController extends Controller
      */
     public function show(Round $round, Story $story): StoryResource
     {
-        $this->authorize('view', $round);
+        $this->authorize('view', $story);
 
         if ($round->id !== $story->round?->id) abort(404);
 
@@ -85,7 +86,7 @@ class StoryController extends Controller
      */
     public function download(Round $round, Story $story): StreamedResponse
     {
-        $this->authorize('view', $round);
+        $this->authorize('view', $story);
 
         if ($round->id !== $story->round_id) abort(404);
 

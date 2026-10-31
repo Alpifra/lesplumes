@@ -130,6 +130,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Jokers the plume may still play this calendar year.
+     *
+     * A joker is counted in the year it was played, so the quota starts
+     * afresh every 1st of January.
+     */
+    public function jokersLeft(): int
+    {
+        $played = $this->participantRounds()
+            ->wherePivotBetween('joker_at', [now()->startOfYear(), now()->endOfYear()])
+            ->count();
+
+        return max(0, Round::JOKERS_PER_YEAR - $played);
+    }
+
+    /**
      * The rounds where user is attached as master.
      */
     public function masterRounds(): HasMany
@@ -150,6 +165,6 @@ class User extends Authenticatable
      */
     public function participantRounds(): BelongsToMany
     {
-        return $this->belongsToMany(Round::class);
+        return $this->belongsToMany(Round::class)->withPivot('joker_at');
     }
 }

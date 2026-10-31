@@ -16,4 +16,5 @@
     &--error   { background: variables.$error-bg;   color: variables.$error; }
     &--warn    { background: variables.$warning-bg; color: #8A6D10; }
     &--neutral { background: variables.$plume-tint; color: variables.$ink; }
+    &--joker   { background: transparent;           color: variables.$plume; box-shadow: inset 0 0 0 1px variables.$plume; }
 }

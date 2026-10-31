@@ -231,6 +231,61 @@ class RoundController extends Controller
     }
 
     /**
+     * Play a joker: the plume hands nothing in on this session and still
+     * reads the others' texts once it closes.
+     *
+     * Only a participant may, while the session is open, before handing her
+     * text in, and within her jokers of the year. A joker counts as handed
+     * in, so it may be the one that closes the session.
+     */
+    public function joker(Request $request, Round $round): RoundResource
+    {
+        $user = $request->user();
+        $participant = $round->participants()->whereKey($user->id)->first();
+
+        abort_unless($participant, 403, 'Seules les plumes convoquées peuvent poser un joker.');
+        abort_if($round->isFinished(), 403, 'Cette session est terminée.');
+        abort_if($participant->pivot->joker_at, 422, 'Vous avez déjà posé un joker sur cette session.');
+
+        abort_if(
+            $round->roundStories()->where('writer_id', $user->id)->whereHas('media')->exists(),
+            422,
+            'Votre texte est déjà rendu.'
+        );
+
+        abort_unless(
+            $user->jokersLeft() > 0,
+            422,
+            'Vous avez déjà posé vos ' . Round::JOKERS_PER_YEAR . ' jokers cette année.'
+        );
+
+        $round->participants()->updateExistingPivot($user->id, ['joker_at' => now()]);
+        $round->closeIfComplete();
+
+        return new RoundResource($round->fresh());
+    }
+
+    /**
+     * Take a joker back while the session is open, to hand a text in after
+     * all. Depositing a text withdraws it as well.
+     */
+    public function withdrawJoker(Request $request, Round $round): RoundResource
+    {
+        $user = $request->user();
+
+        abort_unless(
+            $round->jokers()->whereKey($user->id)->exists(),
+            404,
+            "Vous n'avez pas posé de joker sur cette session."
+        );
+        abort_if($round->isFinished(), 403, 'Cette session est terminée.');
+
+        $round->withdrawJoker($user);
+
+        return new RoundResource($round->fresh());
+    }
+
+    /**
      * Rule for a user id that must belong to a plume still in the circle.
      */
     private static function activePlume(): Exists
@@ -244,6 +299,8 @@ class RoundController extends Controller
     public function download(Round $round): BinaryFileResponse
     {
         $this->authorize('view', $round);
+
+        abort_unless($round->isFinished(), 403, "Les textes s'ouvrent à la clôture de la session.");
 
         $round->load('roundStories.media', 'roundStories.writer');
 

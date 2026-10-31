@@ -37,38 +37,8 @@
         gap: 14px;
     }
 
-    &__bell {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        background: #fff;
-        border: 1px solid variables.$rule;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        position: relative;
-        color: variables.$ink;
-
-        svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-    }
-
-    &__bell-dot {
-        position: absolute;
-        top: 8px;
-        right: 10px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: variables.$highlight;
-    }
-
-    // Burger: same footprint as the bell, revealed only on mobile where the
-    // sidebar becomes an off-canvas drawer (see _responsive.scss).
+    // Burger: a square button revealed only on mobile, where the sidebar
+    // becomes an off-canvas drawer (see _responsive.scss).
     &__burger {
         display: none;
         width: 42px;

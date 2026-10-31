@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Round;
 use App\Models\Story;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,8 @@ class StatsController extends Controller
         return response()->json([
             'data' => [
                 'avg_writing_days' => $durations->isNotEmpty() ? round($durations->avg(), 1) : 0,
+                'jokers_left'      => $user->jokersLeft(),
+                'jokers_per_year'  => Round::JOKERS_PER_YEAR,
             ],
         ]);
     }

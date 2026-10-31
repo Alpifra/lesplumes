@@ -8,11 +8,16 @@ use App\Models\User;
 class StoryPolicy
 {
     /**
-     * A text is readable by every plume of its session.
+     * A text is readable by every plume of its session once the session is
+     * over — jokers included. Until then, only its author reads it.
      */
     public function view(User $user, Story $story): bool
     {
-        return $story->round !== null && $user->can('view', $story->round);
+        if ($story->round === null || !$user->can('view', $story->round)) {
+            return false;
+        }
+
+        return $story->round->isFinished() || $story->writer_id === $user->id;
     }
 
     /**

@@ -106,10 +106,10 @@ class RoundActionsApiTest extends TestCase
      * @group api
      * @group media
      */
-    public function a_story_pdf_can_be_downloaded(): void
+    public function a_story_pdf_can_be_downloaded_once_the_round_is_over(): void
     {
         $user = User::factory()->create();
-        $round = $this->activeRound();
+        $round = $this->finishedRound();
         $round->participants()->attach($user);
         $story = Story::factory()->for($round)->create();
         Media::storeForStory($story, MediaFactory::createFile());
@@ -126,10 +126,10 @@ class RoundActionsApiTest extends TestCase
      * @group api
      * @group round
      */
-    public function a_round_can_be_downloaded_as_a_zip(): void
+    public function a_round_can_be_downloaded_as_a_zip_once_it_is_over(): void
     {
         $user = User::factory()->create();
-        $round = $this->activeRound();
+        $round = $this->finishedRound();
         $round->participants()->attach($user);
         $story = Story::factory()->for($round)->create();
         Media::storeForStory($story, MediaFactory::createFile());
@@ -550,5 +550,203 @@ class RoundActionsApiTest extends TestCase
         $positions = array_map(fn (User $p) => array_search($p->id, $ids, true), [$plume, $successor, $third]);
 
         self::assertSame([$positions[0], $positions[0] + 1, $positions[0] + 2], $positions);
+    }
+
+    /** A participant of an open round, with the round. */
+    private function convened(?Round $round = null): array
+    {
+        $round ??= $this->openRound();
+        $user = User::factory()->create();
+        $round->participants()->attach($user);
+
+        return [$user, $round];
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function the_texts_of_others_stay_closed_until_the_round_is_over(): void
+    {
+        [$user, $round] = $this->convened($this->activeRound());
+        $story = Story::factory()->for($round)->create();
+        Media::storeForStory($story, MediaFactory::createFile());
+
+        $this->actingAs($user)
+            ->get("/api/rounds/{$round->id}/stories/{$story->id}/download")
+            ->assertStatus(403);
+
+        $this->actingAs($user)
+            ->get("/api/rounds/{$round->id}/download")
+            ->assertStatus(403);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function a_plume_reads_her_own_text_while_the_round_is_open(): void
+    {
+        [$user, $round] = $this->convened($this->activeRound());
+        $story = Story::factory()->for($round)->create(['writer_id' => $user->id]);
+        Media::storeForStory($story, MediaFactory::createFile());
+
+        $this->actingAs($user)
+            ->get("/api/rounds/{$round->id}/stories/{$story->id}/download")
+            ->assertStatus(200);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function a_participant_can_play_a_joker(): void
+    {
+        [$user, $round] = $this->convened();
+        $round->participants()->attach(User::factory()->create());
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")
+            ->assertStatus(200)
+            ->assertJsonPath('data.jokers', [$user->id])
+            ->assertJsonPath('data.jokers_left', Round::JOKERS_PER_YEAR - 1)
+            ->assertJsonPath('data.status', 'en-cours');
+
+        // The dashboard shows the jokers left for the year.
+        $this->actingAs($user)->getJson('/api/stats')
+            ->assertJsonPath('data.jokers_left', Round::JOKERS_PER_YEAR - 1)
+            ->assertJsonPath('data.jokers_per_year', Round::JOKERS_PER_YEAR);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function a_joker_counts_as_handed_in_and_may_close_the_round(): void
+    {
+        [$writer, $round] = $this->convened();
+        [$joker] = $this->convened($round);
+
+        $this->actingAs($writer)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        $this->actingAs($joker)->postJson("/api/rounds/{$round->id}/joker")
+            ->assertStatus(200)
+            ->assertJsonPath('data.status', 'termine');
+
+        // Once the round is over, the joker reads the texts of the others.
+        $story = $round->roundStories()->first();
+
+        $this->actingAs($joker)
+            ->get("/api/rounds/{$round->id}/stories/{$story->id}/download")
+            ->assertStatus(200);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function jokers_are_capped_per_calendar_year(): void
+    {
+        [$user] = $this->convened();
+
+        // Jokers of last year no longer count.
+        $past = Round::factory()->create(['start_at' => now()->subYear(), 'end_at' => now()->subYear()]);
+        $past->participants()->attach($user, ['joker_at' => now()->subYear()]);
+
+        foreach (range(1, Round::JOKERS_PER_YEAR) as $ignored) {
+            [, $round] = $this->convened();
+            $round->participants()->attach($user);
+
+            $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(200);
+        }
+
+        [, $round] = $this->convened();
+        $round->participants()->attach($user);
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Vous avez déjà posé vos ' . Round::JOKERS_PER_YEAR . ' jokers cette année.');
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function a_joker_needs_an_open_round_and_a_convened_plume(): void
+    {
+        [$user, $round] = $this->convened($this->finishedRound());
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(403);
+
+        $round = $this->openRound();
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(403);
+        $this->actingAs($round->master)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(403);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function no_joker_once_the_text_is_handed_in(): void
+    {
+        [$user, $round] = $this->convened();
+        $round->participants()->attach(User::factory()->create());
+
+        $this->actingAs($user)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Votre texte est déjà rendu.');
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function handing_a_text_in_withdraws_the_joker(): void
+    {
+        [$user, $round] = $this->convened();
+        $round->participants()->attach(User::factory()->create());
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(200);
+
+        $this->actingAs($user)->post("/api/rounds/{$round->id}/stories", [
+            'file' => MediaFactory::createFile(),
+        ])->assertStatus(201);
+
+        $this->assertDatabaseHas('round_user', ['round_id' => $round->id, 'user_id' => $user->id, 'joker_at' => null]);
+        $this->assertSame(Round::JOKERS_PER_YEAR, $user->jokersLeft());
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group joker
+     */
+    public function a_joker_can_be_taken_back_while_the_round_is_open(): void
+    {
+        [$user, $round] = $this->convened();
+        $round->participants()->attach(User::factory()->create());
+
+        $this->actingAs($user)->deleteJson("/api/rounds/{$round->id}/joker")->assertStatus(404);
+
+        $this->actingAs($user)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(200);
+
+        $this->actingAs($user)->deleteJson("/api/rounds/{$round->id}/joker")
+            ->assertStatus(200)
+            ->assertJsonPath('data.jokers', [])
+            ->assertJsonPath('data.jokers_left', Round::JOKERS_PER_YEAR);
     }
 }

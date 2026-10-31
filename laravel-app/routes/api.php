@@ -32,6 +32,8 @@ Route::middleware(['auth:sanctum', 'active'])->name('api.')->group( function() {
 
     Route::get('rounds/{round}/download', [RoundController::class, 'download'])->name('rounds.download');
     Route::post('rounds/{round}/invite', [RoundController::class, 'invite'])->name('rounds.invite');
+    Route::post('rounds/{round}/joker', [RoundController::class, 'joker'])->name('rounds.joker.store');
+    Route::delete('rounds/{round}/joker', [RoundController::class, 'withdrawJoker'])->name('rounds.joker.destroy');
     Route::get('rounds/{round}/stories/{story}/download', [StoryController::class, 'download'])->name('rounds.stories.download');
     Route::post('invitations', [UserController::class, 'invite'])->name('invitations.store');
 

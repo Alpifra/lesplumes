@@ -1,10 +1,11 @@
 <script setup lang="ts">
-export type PillStatus = 'rendu' | 'en-cours' | 'retard' | 'termine';
+export type PillStatus = 'rendu' | 'joker' | 'en-cours' | 'retard' | 'termine';
 
 const props = defineProps<{ status: PillStatus }>();
 
 const config: Record<PillStatus, { cls: string; label: string }> = {
     'rendu':    { cls: 'pill--success', label: 'Rendu' },
+    'joker':    { cls: 'pill--joker',   label: 'Joker' },
     'en-cours': { cls: 'pill--warn',    label: 'En cours' },
     'retard':   { cls: 'pill--error',   label: 'En retard' },
     'termine':  { cls: 'pill--neutral', label: 'Terminée' },

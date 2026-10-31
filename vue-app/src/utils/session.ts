@@ -18,17 +18,22 @@ export const initials = (name: string): string =>
 
 export const avatarHue = (index: number): number => (index * 67) % 360;
 
+/** Whether a user played a joker on a round. */
+export const hasJoker = (round: Round, userId: number): boolean =>
+    (round.jokers ?? []).includes(userId);
+
 /** The story a given user deposited on a round, if any. */
 export const storyFor = (round: Round, userId: number): Story | undefined =>
     (round.stories ?? []).find(story => story.writer?.id === userId);
 
 /**
  * The contribution status of a user on a round:
- * "rendu" once a PDF is attached, "en-cours" while the round is open,
- * "retard" if the round is finished without a deposit.
+ * "rendu" once a PDF is attached, "joker" if she played one, "en-cours"
+ * while the round is open, "retard" if the round is finished without either.
  */
 export const storyStatus = (round: Round, userId: number): PillStatus => {
     if (storyFor(round, userId)?.media) return 'rendu';
+    if (hasJoker(round, userId)) return 'joker';
     return round.status === 'termine' ? 'retard' : 'en-cours';
 };
 
@@ -64,11 +69,12 @@ export const renduCount = (round: Round): number =>
     (round.stories ?? []).filter(story => story.media).length;
 
 /**
- * Participants still expected to hand in. A session without a deadline
- * closes when this reaches zero, so it stands in for the countdown.
+ * Participants still expected to hand in — a joker counts as handed in. A
+ * session without a deadline closes when this reaches zero, so it stands in
+ * for the countdown.
  */
 export const awaitedCount = (round: Round): number =>
-    Math.max(0, (round.participants ?? []).length - renduCount(round));
+    Math.max(0, (round.participants ?? []).length - renduCount(round) - (round.jokers ?? []).length);
 
 /** Whole days left before a round's deadline (0 if past / undated). */
 export const daysLeft = (round: Round): number => {

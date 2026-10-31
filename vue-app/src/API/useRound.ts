@@ -10,6 +10,10 @@ export interface Round {
     master: User,
     participants: User[],
     stories: Story[],
+    /** Participants who played a joker: they hand nothing in. */
+    jokers: number[],
+    /** Jokers the current plume has left this year — on a single round only. */
+    jokers_left?: number,
     word: string,
     status: RoundStatus,
     start_at: string | null,
@@ -37,6 +41,7 @@ function normalizeRound(raw: any): Round {
         ...raw,
         participants: raw?.participants?.data ?? raw?.participants ?? [],
         stories: raw?.stories?.data ?? raw?.stories ?? [],
+        jokers: raw?.jokers ?? [],
     } as Round;
 }
 
@@ -118,6 +123,23 @@ export async function useInvitePlume(roundId: number, email: string) {
         { email },
         { 'X-XSRF-TOKEN': token ?? '' }
     );
+}
+
+/**
+ * Play a joker on a round, or take it back with `withdraw`. Answers the
+ * round as it stands afterwards — a joker may be what closes it.
+ */
+export async function useJoker(roundId: number, withdraw = false) {
+    const token = await useXsrfToken();
+
+    const response = await useFetch(
+        `${routePrefix}/${roundId}/joker`,
+        withdraw ? METHODS.DELETE : METHODS.POST,
+        {},
+        { 'X-XSRF-TOKEN': token ?? '' }
+    );
+
+    return { ...response, data: response.data ? normalizeRound(response.data) : null };
 }
 
 export function useDownloadRoundZip(roundId: number) {

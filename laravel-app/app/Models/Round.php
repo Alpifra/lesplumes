@@ -16,6 +16,11 @@ class Round extends Model
     public $timestamps = false;
 
     /**
+     * Jokers each plume may play per calendar year.
+     */
+    public const JOKERS_PER_YEAR = 2;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -72,11 +77,20 @@ class Round extends Model
     }
 
     /**
+     * Whether the session is over, which opens its texts to the circle.
+     */
+    public function isFinished(): bool
+    {
+        return $this->status === 'termine';
+    }
+
+    /**
      * Close the session if every plume has handed her text in.
      *
-     * A text counts as handed in once a file is attached to it. Only the
-     * participants are awaited: the master is the plume who picked the word.
-     * Returns whether this deposit was the one that closed the session.
+     * A text counts as handed in once a file is attached to it, and a joker
+     * counts as handed in too. Only the participants are awaited: the master
+     * is the plume who picked the word. Returns whether this deposit was the
+     * one that closed the session.
      */
     public function closeIfComplete(): bool
     {
@@ -94,6 +108,7 @@ class Round extends Model
             ->whereHas('media')
             ->whereIn('writer_id', $awaited)
             ->pluck('writer_id')
+            ->merge($this->jokers()->pluck('users.id'))
             ->unique();
 
         if ($handedIn->count() < $awaited->count()) {
@@ -104,6 +119,14 @@ class Round extends Model
         $this->save();
 
         return true;
+    }
+
+    /**
+     * Withdraw the joker a plume played, once she hands a text in after all.
+     */
+    public function withdrawJoker(User $plume): void
+    {
+        $this->participants()->updateExistingPivot($plume->id, ['joker_at' => null]);
     }
 
     /**
@@ -182,6 +205,14 @@ class Round extends Model
      */
     public function participants(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('joker_at');
+    }
+
+    /**
+     * The participants who played a joker on the round.
+     */
+    public function jokers(): BelongsToMany
+    {
+        return $this->participants()->wherePivotNotNull('joker_at');
     }
 }
