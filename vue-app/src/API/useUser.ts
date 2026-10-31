@@ -6,6 +6,8 @@ export interface User {
     last_name: string,
     user_name: string,
     email: string,
+    // Set once the plume left the circle; she still shows in past sessions.
+    deactivated_at?: string | null,
     created_at: string,
     updated_at: string,
 }

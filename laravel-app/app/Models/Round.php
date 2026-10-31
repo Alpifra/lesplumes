@@ -120,31 +120,37 @@ class Round extends Model
     /**
      * The plume whose turn it is to pick the word of the next session.
      *
-     * The turn travels through the circle by ascending id and starts over at
-     * the first plume once the last one has played — unless the plume in turn
-     * handed it over, which the session she closed records.
+     * The turn travels through the circle in alphabetical order of first
+     * names and starts over at the first plume once the last one has played —
+     * unless the plume in turn handed it over, which the session she closed
+     * records.
+     *
+     * Deactivated plumes are skipped: they keep their place in the history,
+     * not in the circle.
      */
     public static function nextSelector(): ?User
     {
-        $firstPlume = User::query()->orderBy('id')->first();
+        $firstPlume = User::active()->inCircleOrder()->first();
         $last = static::mostRecent();
 
         if (!$last) {
             return $firstPlume;
         }
 
-        if ($last->next_master_id) {
+        // A hand-off to a plume who left since is void: the turn follows the
+        // circle as if nobody had handed it over.
+        if ($last->next_master_id && !$last->nextMaster?->isDeactivated()) {
             return $last->nextMaster;
         }
 
         // A master whose account is gone leaves no place in the circle to
-        // resume from, so the turn goes back to the first plume.
-        if (!$last->master_id) {
+        // resume from, so the turn goes back to the first plume. A deactivated
+        // master still has hers, the turn resumes after it.
+        if (!$last->master) {
             return $firstPlume;
         }
 
-        return User::query()->where('id', '>', $last->master_id)->orderBy('id')->first()
-            ?? $firstPlume;
+        return User::nextInCircle($last->master);
     }
 
     /**

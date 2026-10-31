@@ -58,22 +58,51 @@ describe('RotationOrder', () => {
         expect(wrapper.find('.rotation__confirm').exists()).toBe(false);
     });
 
-    it('asks to confirm before handing the word over', async () => {
+    it('asks to confirm before handing the word over to the next plume', async () => {
         const wrapper = mount(RotationOrder, {
             props: { plumes: circle, selectorId: 1, interactive: true },
         });
 
-        // The plume in turn is never a hand-off target.
-        expect(wrapper.findAll('button.rotation__plume')).toHaveLength(2);
+        // Only the plume right after the one in turn can take the word.
+        expect(wrapper.findAll('button.rotation__plume')).toHaveLength(1);
 
-        await wrapper.findAll('.rotation__plume')[2].trigger('click');
+        await wrapper.findAll('.rotation__plume')[1].trigger('click');
 
-        expect(wrapper.find('.rotation__confirm').text()).toContain('Camille Lefèvre');
+        expect(wrapper.find('.rotation__confirm').text()).toContain('Auguste Morel');
         expect(wrapper.emitted('hand-off')).toBeUndefined();
 
         await wrapper.find('.rotation__confirm .btn--primary').trigger('click');
 
-        expect(wrapper.emitted('hand-off')?.[0]).toEqual([circle[2]]);
+        expect(wrapper.emitted('hand-off')?.[0]).toEqual([circle[1]]);
+    });
+
+    it('leaves the other plumes out of the hand-off', async () => {
+        const wrapper = mount(RotationOrder, {
+            props: { plumes: circle, selectorId: 1, interactive: true },
+        });
+
+        await wrapper.findAll('.rotation__plume')[2].trigger('click');
+
+        expect(wrapper.find('.rotation__confirm').exists()).toBe(false);
+    });
+
+    it('hands the word from the last plume over to the first', () => {
+        const wrapper = mount(RotationOrder, {
+            props: { plumes: circle, selectorId: 3, interactive: true },
+        });
+
+        const buttons = wrapper.findAll('button.rotation__plume');
+
+        expect(buttons).toHaveLength(1);
+        expect(buttons[0].text()).toContain('Jeanne');
+    });
+
+    it('numbers the plumes by their place in the rotation', () => {
+        const wrapper = mount(RotationOrder, {
+            props: { plumes: circle, selectorId: 2 },
+        });
+
+        expect(wrapper.findAll('.rotation__id').map(id => id.text())).toEqual(['#1', '#2', '#3']);
     });
 });
 
@@ -153,18 +182,18 @@ describe('NewSessionCard', () => {
         expect(wrapper.find('.new-session-card__word').exists()).toBe(false);
     });
 
-    it('hands the word over and says who holds it now', async () => {
-        handOff.mockResolvedValue({ headers: { status: 200 }, data: { id: 3 } });
+    it('hands the word over to the next plume and says who holds it now', async () => {
+        handOff.mockResolvedValue({ headers: { status: 200 }, data: { id: 2 } });
 
         const wrapper = mountCard();
 
-        await wrapper.findAll('.rotation__plume')[2].trigger('click');
+        await wrapper.findAll('.rotation__plume')[1].trigger('click');
         await wrapper.find('.rotation__confirm .btn--primary').trigger('click');
         await Promise.resolve();
         await wrapper.vm.$nextTick();
 
-        expect(handOff).toHaveBeenCalledWith(3);
-        expect(wrapper.text()).toContain('Camille Lefèvre choisit le mot');
+        expect(handOff).toHaveBeenCalledWith(2);
+        expect(wrapper.text()).toContain('Auguste Morel choisit le mot');
     });
 });
 

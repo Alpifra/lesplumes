@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Api\Resources;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -55,5 +56,47 @@ class AuthenticationApiTest extends TestCase
                          ->where('username', [0 => 'These credentials do not match our records.'])
                     )
         );
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiPost
+     * @group user
+     * @group security
+     */
+    public function a_deactivated_plume_cannot_login(): void
+    {
+        $user = User::factory()->create();
+        $user->deactivate();
+
+        $this->postJson('/api/login', [
+            'username' => $user->email,
+            'password' => 'password',
+        ])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.username.0', 'Ce compte est désactivé.');
+
+        $this->assertGuest();
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiPost
+     * @group user
+     * @group security
+     */
+    public function a_deactivated_account_is_not_revealed_without_its_password(): void
+    {
+        $user = User::factory()->create();
+        $user->deactivate();
+
+        $this->postJson('/api/login', [
+            'username' => $user->email,
+            'password' => 'wrong-password',
+        ])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.username.0', 'These credentials do not match our records.');
     }
 }

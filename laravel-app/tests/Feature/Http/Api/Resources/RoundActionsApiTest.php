@@ -321,6 +321,23 @@ class RoundActionsApiTest extends TestCase
     }
 
     /**
+     * Plumes that follow one another in the circle. They share a first name
+     * no one else bears, so whatever the persistent database holds, none of
+     * its plumes can slip between them: their last names set their order.
+     *
+     * @return User[]
+     */
+    private function neighbours(int $count): array
+    {
+        $firstName = 'Voisine' . uniqid();
+
+        return array_map(
+            fn (string $lastName) => User::factory()->create(['first_name' => $firstName, 'last_name' => $lastName]),
+            array_slice(['Andre', 'Bertin', 'Colin'], 0, $count),
+        );
+    }
+
+    /**
      * @test
      * @group api
      * @group round
@@ -344,8 +361,7 @@ class RoundActionsApiTest extends TestCase
      */
     public function the_plume_in_turn_can_hand_the_word_over(): void
     {
-        $plume = User::factory()->create();
-        $successor = User::factory()->create();
+        [$plume, $successor] = $this->neighbours(2);
         $round = $this->roundHandingTheTurnTo($plume);
 
         $this->actingAs($plume)->postJson('/api/rounds/hand-off', ['plume' => $successor->id])
@@ -376,5 +392,163 @@ class RoundActionsApiTest extends TestCase
             'id'             => $round->id,
             'next_master_id' => $plume->id,
         ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_next_session_leaves_deactivated_plumes_out_of_the_circle(): void
+    {
+        $plume = User::factory()->create();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+        $this->roundHandingTheTurnTo($plume);
+
+        $plumes = $this->actingAs($plume)->getJson('/api/rounds/next')
+            ->assertStatus(200)
+            ->json('data.plumes.data.*.id');
+
+        self::assertContains($plume->id, $plumes);
+        self::assertNotContains($gone->id, $plumes);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function handing_the_word_over_to_a_deactivated_plume_is_refused(): void
+    {
+        $plume = User::factory()->create();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->postJson('/api/rounds/hand-off', ['plume' => $gone->id])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['plume']);
+
+        $this->assertDatabaseHas('rounds', [
+            'id'             => $round->id,
+            'next_master_id' => $plume->id,
+        ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function a_session_cannot_be_opened_with_a_deactivated_plume(): void
+    {
+        $plume = User::factory()->create();
+        $guest = User::factory()->create();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+        $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->postJson('/api/rounds', [
+            'word'         => 'wagon',
+            'master'       => $plume->id,
+            'participants' => [$guest->id, $gone->id],
+            'start_at'     => now()->toDateTimeString(),
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['participants.1']);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function a_deactivated_plume_cannot_be_invited_to_a_session(): void
+    {
+        $round = $this->activeRound();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+
+        $this->actingAs($round->master)->postJson("/api/rounds/{$round->id}/invite", ['email' => $gone->email])
+            ->assertStatus(422);
+
+        self::assertFalse($round->participants()->where('users.id', $gone->id)->exists());
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group user
+     */
+    public function a_global_invitation_reports_a_deactivated_member(): void
+    {
+        $user = User::factory()->create();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+
+        $this->actingAs($user)->postJson('/api/invitations', ['email' => $gone->email])
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'deactivated');
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_word_only_passes_to_the_next_plume(): void
+    {
+        [$plume, , $further] = $this->neighbours(3);
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->postJson('/api/rounds/hand-off', ['plume' => $further->id])
+            ->assertStatus(422);
+
+        $this->assertDatabaseHas('rounds', [
+            'id'             => $round->id,
+            'next_master_id' => $plume->id,
+        ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_word_can_be_passed_on_along_the_circle(): void
+    {
+        [$plume, $successor, $third] = $this->neighbours(3);
+        $round = $this->roundHandingTheTurnTo($plume);
+
+        $this->actingAs($plume)->postJson('/api/rounds/hand-off', ['plume' => $successor->id])
+            ->assertStatus(200);
+
+        $this->actingAs($successor)->postJson('/api/rounds/hand-off', ['plume' => $third->id])
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('rounds', [
+            'id'             => $round->id,
+            'next_master_id' => $third->id,
+        ]);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group round
+     */
+    public function the_next_session_lists_the_circle_in_rotation_order(): void
+    {
+        [$plume, $successor, $third] = $this->neighbours(3);
+        $this->roundHandingTheTurnTo($plume);
+
+        $ids = $this->actingAs($plume)->getJson('/api/rounds/next')
+            ->assertStatus(200)
+            ->json('data.plumes.data.*.id');
+
+        $positions = array_map(fn (User $p) => array_search($p->id, $ids, true), [$plume, $successor, $third]);
+
+        self::assertSame([$positions[0], $positions[0] + 1, $positions[0] + 2], $positions);
     }
 }

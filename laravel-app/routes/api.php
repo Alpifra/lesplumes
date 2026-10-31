@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->name('api.')->group( function() {
+Route::middleware(['auth:sanctum', 'active'])->name('api.')->group( function() {
 
     Route::get('stats', [StatsController::class, 'index'])->name('stats.index');
 

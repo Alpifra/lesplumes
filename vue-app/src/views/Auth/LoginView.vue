@@ -10,6 +10,8 @@ const username = ref('');
 const password = ref('');
 const error = ref('');
 
+const DEACTIVATED = 'Ce compte est désactivé.';
+
 const onSubmit = async () => {
     error.value = '';
 
@@ -21,7 +23,11 @@ const onSubmit = async () => {
     const result = await useLogin({ username: username.value, password: password.value });
 
     if (result && 'errors' in result && result.errors) {
-        error.value = 'Identifiant ou mot de passe incorrect.';
+        // The API only says so once the password matched: worth showing as is,
+        // the other refusals keep the generic wording.
+        error.value = result.errors.message === DEACTIVATED
+            ? DEACTIVATED
+            : 'Identifiant ou mot de passe incorrect.';
         return;
     }
 

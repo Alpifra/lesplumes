@@ -8,18 +8,20 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * The plumes of the circle. Those who left are kept out: they still show
+     * through the sessions they took part in.
      */
     public function index(): UserCollection
     {
         $this->authorize('viewAny', User::class);
 
-        return new UserCollection(User::paginate());
+        return new UserCollection(User::active()->paginate());
     }
 
     /**
@@ -36,7 +38,7 @@ class UserController extends Controller
 
         if ($user) {
             return response()->json([
-                'status' => 'exists',
+                'status' => $user->isDeactivated() ? 'deactivated' : 'exists',
                 'user'   => new UserResource($user),
             ]);
         }
@@ -93,13 +95,24 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Close an account by deactivating it rather than deleting it: the row
+     * holds the plume's texts and her place in past sessions, which a delete
+     * would cascade away. Her session ends with it.
      */
-    public function destroy(User $user): Response
+    public function destroy(Request $request, User $user): Response
     {
         $this->authorize('delete', $user);
 
-        $user->delete();
+        $user->deactivate();
+
+        if ($request->user()->is($user)) {
+            Auth::guard('web')->logout();
+
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+        }
 
         return Response(null, 204);
     }

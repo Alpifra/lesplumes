@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Http\Api\Resources;
 
+use App\Models\Media;
+use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -132,6 +134,70 @@ class UserApiTest extends TestCase
             ->delete("/api/users/{$user->id}");
 
         $response->assertStatus(204);
+
+        self::assertTrue($user->fresh()->isDeactivated());
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiDelete
+     * @group user
+     */
+    public function closing_an_account_keeps_the_plume_texts(): void
+    {
+        $user = User::factory()->create();
+        $story = Story::factory()->for($user, 'writer')->has(Media::factory())->create();
+
+        $this->actingAs($user)
+            ->delete("/api/users/{$user->id}")
+            ->assertStatus(204);
+
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
+        $this->assertDatabaseHas('stories', ['id' => $story->id, 'writer_id' => $user->id]);
+        self::assertNotNull($story->fresh()->media);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group apiGet
+     * @group user
+     */
+    public function the_user_list_leaves_deactivated_plumes_out(): void
+    {
+        $user = User::factory()->create();
+        $gone = User::factory()->create();
+        $gone->deactivate();
+
+        $ids = [];
+        $page = 1;
+
+        // The suite shares a persistent database: walk every page rather
+        // than assume the newcomers land on the first one.
+        do {
+            $response = $this->actingAs($user)->getJson("/api/users?page={$page}")->assertStatus(200);
+            $ids = array_merge($ids, $response->json('data.*.id'));
+        } while ($page++ < $response->json('meta.last_page'));
+
+        self::assertContains($user->id, $ids);
+        self::assertNotContains($gone->id, $ids);
+    }
+
+    /**
+     * @test
+     * @group api
+     * @group user
+     * @group security
+     */
+    public function a_deactivated_plume_still_logged_in_is_turned_away(): void
+    {
+        $user = User::factory()->create();
+        $user->deactivate();
+
+        $this->actingAs($user)
+            ->getJson('/api/rounds/next')
+            ->assertStatus(401);
     }
 
     /**

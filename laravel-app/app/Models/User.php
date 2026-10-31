@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Story;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -45,8 +46,9 @@ class User extends Authenticatable
      */
     protected $casts = [
         'updated_at' => 'datetime',
-        'created_at' => 'datetime',
-        'password'   => 'hashed',
+        'created_at'     => 'datetime',
+        'deactivated_at' => 'datetime',
+        'password'       => 'hashed',
     ];
     
     /**
@@ -61,6 +63,70 @@ class User extends Authenticatable
         ]);
 
         return $request;
+    }
+
+    /**
+     * Whether the plume left the circle.
+     */
+    public function isDeactivated(): bool
+    {
+        return $this->deactivated_at !== null;
+    }
+
+    /**
+     * Take the plume out of the circle while keeping her history.
+     *
+     * She can no longer log in and leaves the rotation and the lists, but her
+     * texts and the sessions she took part in stay as they were. A browser
+     * session still open is turned away by the EnsureUserIsActive middleware.
+     */
+    public function deactivate(): void
+    {
+        $this->deactivated_at = now();
+        $this->save();
+    }
+
+    /**
+     * Bring a deactivated plume back into the circle.
+     */
+    public function reactivate(): void
+    {
+        $this->deactivated_at = null;
+        $this->save();
+    }
+
+    /**
+     * Only the plumes still in the circle.
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->whereNull('deactivated_at');
+    }
+
+    /**
+     * The circle in rotation order: alphabetical by first name, then last
+     * name, the id settling namesakes so the order never wavers.
+     */
+    public function scopeInCircleOrder(Builder $query): void
+    {
+        $query->orderBy('first_name')->orderBy('last_name')->orderBy('id');
+    }
+
+    /**
+     * The plume who follows the given one in the circle, starting over at
+     * the first plume after the last.
+     *
+     * The comparison is left to the database so it follows the same
+     * collation as the order — accents and case included. The given plume
+     * may have left the circle: the turn still resumes from her place.
+     */
+    public static function nextInCircle(User $plume): ?self
+    {
+        return static::active()
+            ->whereRaw('(first_name, last_name, id) > (?, ?, ?)', [$plume->first_name, $plume->last_name, $plume->id])
+            ->inCircleOrder()
+            ->first()
+            ?? static::active()->inCircleOrder()->first();
     }
 
     /**
