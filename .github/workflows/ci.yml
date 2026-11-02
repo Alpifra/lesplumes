@@ -56,6 +56,10 @@ jobs:
 
       - run: cp .env.test .env
 
+      # The API and console tests share a persistent database (no RefreshDatabase),
+      # so the schema must exist before the first of them runs
+      - run: php artisan migrate --force
+
       - run: php artisan test
 
   frontend:
