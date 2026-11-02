@@ -112,7 +112,12 @@ class MailsTest extends TestCase
             ->postJson('/api/invitations', ['email' => 'nouvelle@lesplumes.test'])
             ->assertJsonPath('status', 'invited');
 
-        Mail::assertSent(Invitation::class, fn ($mail) => $mail->hasTo('nouvelle@lesplumes.test') && $mail->inviter->is($inviter));
+        Mail::assertSent(Invitation::class, function ($mail) use ($inviter) {
+            // The link carries the token that lets her sign up.
+            $mail->assertSeeInHtml('invitation=' . Invitation::token('nouvelle@lesplumes.test'), false);
+
+            return $mail->hasTo('nouvelle@lesplumes.test') && $mail->inviter->is($inviter);
+        });
     }
 
     /**

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRegister } from '@/API/useAuth';
-import { useRouter, RouterLink } from 'vue-router';
-import BrandWordmark from '@/components/molecules/BrandWordmark.vue';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
+import AuthHero from '@/components/organisms/AuthHero.vue';
 
+const route = useRoute();
 const router = useRouter();
 const showPassword = ref(false);
 
 const firstName = ref('');
 const lastName = ref('');
 const userName = ref('');
-const email = ref('');
+// Signing up is on invitation only: the mail link (/inscription?email=...&invitation=...)
+// carries the invited email and a token bound to it, checked by the API.
+const invitation = typeof route.query.invitation === 'string' ? route.query.invitation : '';
+const email = ref(typeof route.query.email === 'string' ? route.query.email : '');
 const password = ref('');
 const passwordConfirmation = ref('');
 const error = ref('');
@@ -36,6 +40,7 @@ const onSubmit = async () => {
         email: email.value,
         password: password.value,
         password_confirmation: passwordConfirmation.value,
+        invitation,
     });
     submitting.value = false;
 
@@ -50,23 +55,26 @@ const onSubmit = async () => {
 
 <template>
     <div class="auth-stage">
-        <!-- Hero panel -->
-        <div class="auth-hero" style="background: linear-gradient(155deg, #5B34B0 0%, #201D3B 100%);">
-            <div class="auth-hero__wordmark">
-                <BrandWordmark on-dark />
-            </div>
-
-            <div class="auth-hero__body">
-                <p class="auth-hero__eyebrow">Rejoignez le cercle</p>
-                <h2 class="auth-hero__headline">
-                    Écrire<br>ensemble,<br><em>autrement.</em>
-                </h2>
-            </div>
-        </div>
+        <AuthHero />
 
         <!-- Form panel -->
         <div class="auth-form-panel">
-            <form class="auth-form" @submit.prevent="onSubmit">
+            <div v-if="!invitation || !email" class="auth-form">
+                <p class="auth-form__eyebrow">Nouvelle plume</p>
+                <h1 class="auth-form__title">Sur invitation</h1>
+
+                <p class="auth-form__hint">
+                    L'inscription aux Plumes se fait uniquement sur invitation. Demandez à une plume du cercle
+                    de vous inviter : vous recevrez par mail un lien pour créer votre compte.
+                </p>
+
+                <p class="auth-form__switch">
+                    Déjà un compte ?
+                    <RouterLink :to="{ name: 'Login' }" class="auth-form__switch-link">Se connecter</RouterLink>
+                </p>
+            </div>
+
+            <form v-else class="auth-form" @submit.prevent="onSubmit">
                 <p class="auth-form__eyebrow">Nouvelle plume</p>
                 <h1 class="auth-form__title">S'inscrire</h1>
 
@@ -89,7 +97,8 @@ const onSubmit = async () => {
 
                     <label class="field-label">
                         Email
-                        <input v-model="email" class="field" type="email" placeholder="jeanne@plumes.fr" />
+                        <!-- The invitation is bound to this email. -->
+                        <input v-model="email" class="field" type="email" readonly />
                     </label>
 
                     <label class="field-label auth-form__password-wrap">
@@ -99,7 +108,6 @@ const onSubmit = async () => {
                             class="field"
                             :type="showPassword ? 'text' : 'password'"
                             placeholder="8 caractères minimum"
-                            style="padding-right: 48px;"
                         />
                         <button type="button" class="auth-form__eye" @click="showPassword = !showPassword">
                             <svg v-if="showPassword" viewBox="0 0 24 24" fill="none" stroke="#89868D" stroke-width="1.8" stroke-linecap="round" style="pointer-events:none">

@@ -65,13 +65,6 @@
     font-style: italic;
 }
 
-// Signup: two-column first name / last name row
-.auth-form__row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-}
-
 // Invite feedback message on the plumes page
 .plume-card__invite-feedback {
     margin-top: 10px;

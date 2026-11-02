@@ -26,6 +26,18 @@ input.field,
         color: variables.$text-mute;
         font-style: italic;
     }
+
+    // Shown but fixed (e.g. the invited email on signup)
+    &[readonly] {
+        background: variables.$paper-deep;
+        color: variables.$text-soft;
+        cursor: default;
+
+        &:focus {
+            border-color: variables.$rule;
+            box-shadow: none;
+        }
+    }
 }
 
 .field-label {

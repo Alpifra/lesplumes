@@ -52,7 +52,7 @@ const onSubmit = async () => {
                         <input v-model="email" class="field" type="email" placeholder="jeanne@plumes.fr" />
                     </label>
 
-                    <p v-if="message" class="auth-form__hint" style="color:#2E7D5B">{{ message }}</p>
+                    <p v-if="message" class="auth-form__success">{{ message }}</p>
                 </div>
 
                 <p v-if="error" class="auth-form__error">{{ error }}</p>
@@ -61,11 +61,10 @@ const onSubmit = async () => {
                     {{ submitting ? 'Envoi…' : 'Réinitialiser mon mot de passe' }}
                 </button>
 
-                <div class="auth-form__switch">
-                    <RouterLink :to="{ name: 'Login' }" class="btn btn--ghost btn--small">
-                        ← Retour à la connexion
-                    </RouterLink>
-                </div>
+                <p class="auth-form__switch">
+                    Vous vous en souvenez ?
+                    <RouterLink :to="{ name: 'Login' }" class="auth-form__switch-link">Se connecter</RouterLink>
+                </p>
             </form>
         </div>
     </div>

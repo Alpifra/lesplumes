@@ -9,6 +9,7 @@ const showPassword = ref(false);
 const username = ref('');
 const password = ref('');
 const error = ref('');
+const submitting = ref(false);
 
 const DEACTIVATED = 'Ce compte est désactivé.';
 
@@ -20,7 +21,9 @@ const onSubmit = async () => {
         return;
     }
 
+    submitting.value = true;
     const result = await useLogin({ username: username.value, password: password.value });
+    submitting.value = false;
 
     if (result && 'errors' in result && result.errors) {
         // The API only says so once the password matched: worth showing as is,
@@ -58,7 +61,6 @@ const onSubmit = async () => {
                             class="field"
                             :type="showPassword ? 'text' : 'password'"
                             placeholder="••••••••"
-                            style="padding-right: 48px;"
                         />
                         <button type="button" class="auth-form__eye" @click="showPassword = !showPassword">
                             <svg v-if="showPassword" viewBox="0 0 24 24" fill="none" stroke="#89868D" stroke-width="1.8" stroke-linecap="round" style="pointer-events:none">
@@ -80,11 +82,12 @@ const onSubmit = async () => {
 
                 <p v-if="error" class="auth-form__error">{{ error }}</p>
 
-                <button type="submit" class="btn btn--primary auth-form__submit">Se connecter</button>
+                <button type="submit" class="btn btn--primary auth-form__submit" :disabled="submitting">
+                    {{ submitting ? 'Connexion…' : 'Se connecter' }}
+                </button>
 
                 <p class="auth-form__switch">
-                    Pas encore membre ?
-                    <RouterLink :to="{ name: 'Signup' }" class="auth-form__switch-link">S'inscrire</RouterLink>
+                    Pas encore membre ? L'inscription se fait sur invitation.
                 </p>
             </form>
         </div>

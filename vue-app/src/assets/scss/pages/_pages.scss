@@ -133,8 +133,18 @@
         margin-top: 32px;
     }
 
+    // Signup: two-column first name / last name row
+    &__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
     &__password-wrap {
         position: relative;
+
+        // Room for the show / hide eye button
+        .field { padding-right: 48px; }
     }
 
     &__eye {
@@ -174,6 +184,14 @@
         font-size: 13.5px;
         color: variables.$error;
         line-height: 1.45;
+    }
+
+    &__success {
+        margin: 0;
+        font-family: variables.$base-font-sans-serif;
+        font-size: 14px;
+        color: variables.$success;
+        line-height: 1.5;
     }
 
     &__submit {

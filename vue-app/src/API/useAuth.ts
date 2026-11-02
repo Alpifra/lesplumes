@@ -14,6 +14,7 @@ export interface registerData {
     email: string,
     password: string,
     password_confirmation: string,
+    invitation: string,
 }
 
 const appEndpoint = import.meta.env.VITE_APPLICATION_ENDPOINT;

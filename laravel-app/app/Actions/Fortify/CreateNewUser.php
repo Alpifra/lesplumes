@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Mail\Invitation;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -31,6 +32,18 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            // Signing up is on invitation only (see App\Mail\Invitation).
+            'invitation' => [
+                'required',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail) use ($input) {
+                    if (!is_string($input['email'] ?? null) || !Invitation::isValid($input['email'], $value)) {
+                        $fail("L'inscription se fait uniquement sur invitation.");
+                    }
+                },
+            ],
+        ], [
+            'invitation.required' => "L'inscription se fait uniquement sur invitation.",
         ])->validate();
 
         return User::create([
