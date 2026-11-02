@@ -27,7 +27,7 @@ jobs:
 
     env:
       # Laravel folder; the domain's document root points to its public/ subfolder
-      APP_PATH: ${{ vars.APP_PATH }}
+      APP_PATH: ${{ secrets.APP_PATH }}
       # On Infomaniak, plain `php` is an older version: each one lives in /opt/phpX.Y
       PHP_BIN: ${{ vars.PHP_BIN || '/opt/php8.5/bin/php' }}
 
