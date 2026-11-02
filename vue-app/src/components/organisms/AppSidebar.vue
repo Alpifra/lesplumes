@@ -37,6 +37,7 @@ const navItems = [
     { name: 'Home',      label: 'Accueil',    icon: 'home' },
     { name: 'Session',   label: 'Sessions',   icon: 'sessions' },
     { name: 'Les Plumes', label: 'Les plumes', icon: 'plumes' },
+    { name: 'Statistiques', label: 'Statistiques', icon: 'stats' },
 ];
 
 const activeFamily = computed(() => {
@@ -73,6 +74,7 @@ const activeFamily = computed(() => {
                         <path d="M3 21c3-1 7-4 10-9 3-5 8-8 8-8s-1 6-4 10-8 7-12 9" />
                         <path d="M3 21 9 15" />
                     </template>
+                    <path v-else-if="item.icon === 'stats'" d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
                 </svg>
                 {{ item.label }}
             </RouterLink>

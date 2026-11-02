@@ -209,4 +209,17 @@ describe('WaitingSessionCard', () => {
         // A watcher cannot take the turn from the plume who holds it.
         expect(wrapper.findAll('button.rotation__plume')).toHaveLength(0);
     });
+
+    it('folds the rotation order until the plume opens it', async () => {
+        const wrapper = mount(WaitingSessionCard, {
+            props: { selector: circle[1], plumes: circle },
+        });
+
+        expect(wrapper.findAll('.rotation__plume')).toHaveLength(0);
+
+        await wrapper.find('.rotation__toggle').trigger('click');
+
+        expect(wrapper.findAll('.rotation__plume')).toHaveLength(3);
+        expect(wrapper.find('.rotation__toggle').attributes('aria-expanded')).toBe('true');
+    });
 });

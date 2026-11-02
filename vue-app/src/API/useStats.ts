@@ -5,6 +5,8 @@ export interface Stats {
     /** Jokers the plume may still play this calendar year. */
     jokers_left: number,
     jokers_per_year: number,
+    /** Texts handed in on the user's sessions, month by month over a year. */
+    monthly_texts: { month: string, count: number }[],
 }
 
 /**
@@ -14,5 +16,5 @@ export interface Stats {
 export async function useStats(): Promise<Stats> {
     const response = await useFetch('/stats', METHODS.GET);
 
-    return (response.data as Stats) ?? { avg_writing_days: 0, jokers_left: 0, jokers_per_year: 0 };
+    return (response.data as Stats) ?? { avg_writing_days: 0, jokers_left: 0, jokers_per_year: 0, monthly_texts: [] };
 }

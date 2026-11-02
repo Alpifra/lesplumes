@@ -4,13 +4,13 @@ import { RouterLink, useRouter } from 'vue-router';
 import type { NextSession, Round } from '@/API/useRound';
 import { useNextSession, useRounds } from '@/API/useRound';
 import { useStats } from '@/API/useStats';
-import type { Story } from '@/API/useStory';
 import AppSidebar from '@/components/organisms/AppSidebar.vue';
 import AppTopBar from '@/components/organisms/AppTopBar.vue';
 import StatusPill from '@/components/atoms/StatusPill.vue';
 import UploadModal from '@/components/organisms/UploadModal.vue';
 import NewSessionCard from '@/components/organisms/NewSessionCard.vue';
 import WaitingSessionCard from '@/components/organisms/WaitingSessionCard.vue';
+import LastSessionCard from '@/components/organisms/LastSessionCard.vue';
 import { useStorageUser } from '@/API/useUser';
 import type { PaginationMeta } from '@/API/useApi';
 import { formatDate, initials, avatarHue, storyFor, storyStatus, depositDate } from '@/utils/session';
@@ -28,8 +28,13 @@ const currentRound = computed<Round | null>(() =>
     rounds.value.find(r => r.status === 'en-cours') ?? null
 );
 
+// The rounds come newest first: the first finished one closed last.
+const lastFinishedRound = computed<Round | null>(() =>
+    rounds.value.find(r => r.status === 'termine') ?? null
+);
+
 const pastRounds = computed<Round[]>(() =>
-    rounds.value.filter(r => r.id !== currentRound.value?.id)
+    rounds.value.filter(r => r.id !== currentRound.value?.id && r.id !== lastFinishedRound.value?.id)
 );
 
 // Once every session is closed, the dashboard hands over to the plume whose
@@ -81,27 +86,21 @@ const jokersLeft = ref(0);
 const jokersPerYear = ref(0);
 const currentYear = new Date().getFullYear();
 
-const allStories = computed<Story[]>(() => rounds.value.flatMap(r => r.stories ?? []));
+// Texts handed in over the last 12 months, counted server-side (see /stats).
+// Each month is labelled by its initial; its full name goes in the tooltip.
+const monthlyTexts = ref<{ month: string, count: number }[]>([]);
 
-const monthsChart = computed(() => {
-    const now = new Date();
-    const buckets = Array.from({ length: 4 }, (_, i) => {
-        const d = new Date(now.getFullYear(), now.getMonth() - (3 - i), 1);
-        return { m: d.toLocaleDateString('fr-FR', { month: 'short' }), key: `${d.getFullYear()}-${d.getMonth()}`, v: 0 };
-    });
-    allStories.value.forEach(story => {
-        if (!story.media) return;
-        const d = new Date(story.updated_at);
-        const bucket = buckets.find(b => b.key === `${d.getFullYear()}-${d.getMonth()}`);
-        if (bucket) bucket.v += 1;
-    });
-    return buckets;
-});
+const monthsChart = computed(() => monthlyTexts.value.map(({ month, count }) => {
+    const [year, index] = month.split('-').map(Number);
+    const name = new Date(year, index - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+    return { key: month, m: name.charAt(0).toUpperCase(), name, v: count };
+}));
 
 // Top of the y axis, rounded up to an even number of plumes so the three
 // ticks below stay whole and distinct.
 const chartMax = computed(() => {
-    const peak = Math.max(...monthsChart.value.map(b => b.v));
+    const peak = Math.max(0, ...monthsChart.value.map(b => b.v));
     return Math.max(2, Math.ceil(peak / 2) * 2);
 });
 
@@ -118,6 +117,7 @@ const load = async () => {
     avgWritingDays.value = stats.avg_writing_days;
     jokersLeft.value = stats.jokers_left;
     jokersPerYear.value = stats.jokers_per_year;
+    monthlyTexts.value = stats.monthly_texts;
 };
 
 const onDeposited = () => load();
@@ -215,6 +215,11 @@ onMounted(load);
                         :plumes="circle"
                     />
 
+                    <LastSessionCard
+                        v-if="lastFinishedRound"
+                        :round="lastFinishedRound"
+                    />
+
                     <!-- Past sessions card -->
                     <div class="card home-past-card">
                         <div class="card-header">
@@ -279,7 +284,7 @@ onMounted(load);
                     </div>
 
                     <div class="card kpi-chart">
-                        <div class="kpi-card__label">Les 4 derniers mois</div>
+                        <div class="kpi-card__label">Les 12 derniers mois</div>
                         <div class="kpi-chart__title">Plumes écrites</div>
                         <div class="kpi-chart__bars">
                             <div class="kpi-chart__y">
@@ -289,15 +294,16 @@ onMounted(load);
                                 <div
                                     v-for="(d, i) in monthsChart"
                                     :key="i"
+                                    :title="`${d.name} : ${d.v} ${d.v > 1 ? 'textes' : 'texte'}`"
                                     class="kpi-chart__bar"
                                     :style="{height:`${(d.v/chartMax)*100}%`, background: i===monthsChart.length-1 ? '#9255FD' : '#B388FE', boxShadow: i===monthsChart.length-1 ? '0 4px 10px rgba(146,85,253,0.35)' : 'none'}"
                                 >
-                                    <span class="kpi-chart__bar-label">{{ d.v }}</span>
+                                    <span v-if="d.v" class="kpi-chart__bar-label">{{ d.v }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="kpi-chart__months">
-                            <span v-for="d in monthsChart" :key="d.key" style="text-transform:capitalize">{{ d.m }}</span>
+                            <span v-for="d in monthsChart" :key="d.key">{{ d.m }}</span>
                         </div>
                     </div>
                 </div>

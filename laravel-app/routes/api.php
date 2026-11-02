@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\RoundController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\StoryController;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum', 'active'])->name('api.')->group( function() {
 
     Route::get('stats', [StatsController::class, 'index'])->name('stats.index');
+    Route::get('rankings', [RankingController::class, 'index'])->name('rankings.index');
 
     // Declared before the resource so "next" is not read as a {round} key.
     Route::get('rounds/next', [RoundController::class, 'next'])->name('rounds.next');

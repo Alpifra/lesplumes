@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Plank\Mediable\Media as MediableMedia;
+use Smalot\PdfParser\Parser;
+use Throwable;
 
 class Media extends MediableMedia
 {
@@ -61,7 +63,30 @@ class Media extends MediableMedia
             'public'
         );
 
+        $media->countCharacters();
+
         return $media;
+    }
+
+    /**
+     * Count the characters of the text the PDF holds and store them. Runs of
+     * whitespace count as a single space, so the layout of the page does not
+     * weigh in. A PDF that cannot be read — or a scan, which holds no text —
+     * is left uncounted.
+     */
+    public function countCharacters(): ?int
+    {
+        try {
+            $text = (new Parser)->parseFile(Storage::disk($this->disk)->path($this->relativePath()))->getText();
+            $characters = mb_strlen(trim(preg_replace('/\s+/u', ' ', $text)));
+        } catch (Throwable) {
+            $characters = null;
+        }
+
+        $this->characters = $characters ?: null;
+        $this->save();
+
+        return $this->characters;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Round;
 use App\Models\Story;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,20 +26,45 @@ class StatsController extends Controller
             ->get();
 
         $durations = $stories
-            ->filter(fn (Story $story) => $story->round?->start_at !== null)
-            ->map(function (Story $story): float {
-                // Writing delay = deposit (story.updated_at) − round start, in days.
-                $seconds = $story->updated_at->getTimestamp() - $story->round->start_at->getTimestamp();
-
-                return max(0, $seconds / 86400);
-            });
+            ->map(fn (Story $story) => $story->writingDays())
+            ->filter(fn (?float $days) => $days !== null);
 
         return response()->json([
             'data' => [
                 'avg_writing_days' => $durations->isNotEmpty() ? round($durations->avg(), 1) : 0,
                 'jokers_left'      => $user->jokersLeft(),
                 'jokers_per_year'  => Round::JOKERS_PER_YEAR,
+                'monthly_texts'    => $this->monthlyTexts($user),
             ],
         ]);
+    }
+
+    /**
+     * Texts handed in over the last 12 months, the current one included, on
+     * the sessions the user takes part in — as master or participant. A text
+     * is counted in the month of its deposit, months without any included.
+     *
+     * @return array<int, array{month: string, count: int}>
+     */
+    private function monthlyTexts(User $user): array
+    {
+        $since = now()->startOfMonth()->subMonths(11);
+
+        $counts = Story::query()
+            ->has('media')
+            ->where('updated_at', '>=', $since)
+            ->whereHas('round', fn ($round) => $round->where(fn ($q) => $q
+                ->where('master_id', $user->id)
+                ->orWhereHas('participants', fn ($p) => $p->whereKey($user->id))))
+            ->pluck('updated_at')
+            ->countBy(fn ($date) => $date->format('Y-m'));
+
+        return collect(range(0, 11))
+            ->map(function (int $offset) use ($since, $counts): array {
+                $month = $since->copy()->addMonths($offset)->format('Y-m');
+
+                return ['month' => $month, 'count' => $counts->get($month, 0)];
+            })
+            ->all();
     }
 }

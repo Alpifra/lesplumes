@@ -335,6 +335,70 @@
 }
 
 // ============================================================
+// Last finished session — its texts one click away
+// ============================================================
+
+.last-session-card {
+    padding: 26px 32px 28px;
+
+    &__hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    &__word {
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 48px;
+        color: variables.$ink;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        margin: 0;
+    }
+
+    &__list {
+        list-style: none;
+        margin: 20px 0 0;
+        padding: 0;
+        border-top: 1px solid variables.$rule;
+    }
+
+    &__story {
+        display: grid;
+        grid-template-columns: 1.2fr 2fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid variables.$rule;
+        font-size: 14px;
+    }
+
+    &__writer {
+        font-weight: 700;
+        color: variables.$ink;
+    }
+
+    &__title {
+        color: variables.$text-mute;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__read {
+        color: variables.$plume;
+        font-weight: 700;
+    }
+
+    &__all {
+        margin-top: 16px;
+    }
+}
+
+// ============================================================
 // New session (no session running)
 // ============================================================
 
@@ -575,6 +639,38 @@
         font-weight: 700;
         color: variables.$ink;
         letter-spacing: 0.02em;
+    }
+
+    // Accordion title, for the plumes who only watch the turn go round.
+    &__toggle {
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0;
+        padding: 0;
+        background: none;
+        border: 0;
+        cursor: pointer;
+
+        // No outline on click (see the global button rule in _forms.scss):
+        // only the keyboard gets one, to see where it stands.
+        &:focus, &:active { outline: none; }
+        &:focus-visible { outline: 1px solid variables.$plume-soft; outline-offset: 4px; }
+    }
+
+    &__chevron {
+        width: 18px;
+        height: 18px;
+        color: variables.$text-mute;
+        transition: transform 0.2s ease;
+
+        &--open { transform: rotate(180deg); }
+    }
+
+    // Once unfolded, the hint sits under the toggle rather than beside it.
+    &__header--folded {
+        margin-top: 10px;
+
+        .rotation__hint { text-align: left; }
     }
 
     &__hint {
@@ -838,14 +934,19 @@
         height: 110px;
         border-left: 1px solid variables.$rule;
         border-bottom: 1px solid variables.$rule;
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-around;
+        // One column per month, shared with the labels below so they line up.
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        align-items: end;
+        justify-items: center;
+        gap: 3px;
         padding: 4px 4px 0;
     }
 
     &__bar {
-        width: 22px;
+        width: 100%;
+        max-width: 16px;
+        min-height: 2px;
         border-radius: 6px 6px 2px 2px;
         position: relative;
         transition: height 0.3s ease;
@@ -863,9 +964,11 @@
     }
 
     &__months {
-        display: flex;
-        justify-content: space-around;
-        padding-left: 38px;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 3px;
+        text-align: center;
+        padding: 0 4px 0 42px;
         margin-top: 8px;
         font-family: variables.$base-font-sans-serif;
         font-size: 11px;
@@ -1170,6 +1273,161 @@
         color: variables.$plume;
         line-height: 1;
     }
+}
+
+// ============================================================
+// Statistiques (rankings)
+// ============================================================
+
+.rankings {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 760px;
+
+    &__toggle {
+        align-self: flex-start;
+    }
+
+    &__option {
+        padding: 8px 18px;
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        font-family: variables.$font-ui;
+        font-weight: 600;
+        font-size: 14px;
+        color: variables.$text-soft;
+        cursor: pointer;
+
+        &--active {
+            background: variables.$plume-tint;
+            color: variables.$plume;
+        }
+    }
+}
+
+.ranking-card {
+    padding: 24px;
+
+    &__header {
+        margin-bottom: 16px;
+    }
+
+    &__title {
+        margin: 0;
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 24px;
+        color: variables.$ink;
+    }
+
+    &__hint {
+        margin: 2px 0 0;
+        font-family: variables.$font-script;
+        font-size: 16px;
+        color: variables.$plume;
+    }
+
+    &__empty {
+        margin: 0;
+        color: variables.$text-soft;
+    }
+
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 24px 34px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 8px;
+        border-top: 1px solid variables.$rule;
+
+        &:first-child {
+            border-top: 0;
+        }
+
+        // The signed-in plume's row is a tinted pill: the rules above and
+        // below it would cut through its rounded edges, so they fade out.
+        &--me,
+        &--me + & {
+            border-top-color: transparent;
+        }
+
+        &--me {
+            background: variables.$plume-tint;
+            border-radius: 10px;
+        }
+    }
+
+    &__rank {
+        font-family: variables.$font-ui;
+        font-weight: 700;
+        font-size: 14px;
+        color: variables.$text-mute;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__crown {
+        width: 22px;
+        height: 22px;
+
+        &--rainbow {
+            fill: url(#crown-rainbow);
+        }
+
+        &--silver {
+            fill: #DADDE2;
+        }
+
+        &--bronze {
+            fill: #E6C3A5;
+        }
+    }
+
+    // Hovering the first place sets the colours of its crown cycling.
+    &__row:hover &__crown--rainbow {
+        animation: ranking-rainbow 1.6s linear infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__row:hover &__crown--rainbow {
+            animation: none;
+        }
+    }
+
+    &__name {
+        display: flex;
+        flex-direction: column;
+        font-weight: 600;
+        color: variables.$ink;
+        overflow-wrap: anywhere;
+    }
+
+    &__detail {
+        font-weight: 400;
+        font-size: 12px;
+        color: variables.$text-soft;
+    }
+
+    &__value {
+        font-family: variables.$font-display;
+        font-weight: 700;
+        font-size: 18px;
+        color: variables.$ink;
+        white-space: nowrap;
+    }
+}
+
+@keyframes ranking-rainbow {
+    to { filter: hue-rotate(360deg); }
 }
 
 // ============================================================

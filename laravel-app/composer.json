@@ -11,7 +11,8 @@
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
-        "plank/laravel-mediable": "^6.1"
+        "plank/laravel-mediable": "^6.1",
+        "smalot/pdfparser": "^2.13"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

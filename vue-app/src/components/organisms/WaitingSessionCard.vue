@@ -30,6 +30,6 @@ defineProps<{
             <span>La session va commencer. Vous serez prévenu dès que le mot sera dévoilé.</span>
         </div>
 
-        <RotationOrder :plumes="plumes" :selector-id="selector.id" />
+        <RotationOrder :plumes="plumes" :selector-id="selector.id" collapsible />
     </div>
 </template>

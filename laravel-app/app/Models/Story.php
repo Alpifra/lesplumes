@@ -23,6 +23,22 @@ class Story extends Model
     ];
 
     /**
+     * Days the writer took to hand the text in: from the opening of the
+     * session to the deposit (story.updated_at). Null for a session that
+     * never recorded its start.
+     */
+    public function writingDays(): ?float
+    {
+        if (!$this->round?->start_at) {
+            return null;
+        }
+
+        $seconds = $this->updated_at->getTimestamp() - $this->round->start_at->getTimestamp();
+
+        return max(0, $seconds / 86400);
+    }
+
+    /**
      * The round attached to a story.
      */
     public function round(): BelongsTo

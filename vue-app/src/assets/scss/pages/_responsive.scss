@@ -185,6 +185,17 @@
     .page-content { padding: 16px 14px 40px; }
     .home-content { padding: 16px 14px 40px; }
 
+    // Statistiques: the ranking toggle spans the width, options sharing it.
+    .rankings__toggle {
+        align-self: stretch;
+    }
+
+    .rankings__option {
+        flex: 1;
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+
     // Les plumes: single column at mobile width (overrides the tablet
     // 2-column rule above, since this query also matches).
     .plumes-grid {
@@ -196,6 +207,7 @@
     // to the data-table's 20px so content gets the full viewport width.
     .home-session-card { padding: 20px 18px 22px; }
     .new-session-card { padding: 20px 18px 22px; }
+    .last-session-card { padding: 20px 18px 22px; }
     .home-past-card__table { margin: 4px 18px 22px; }
     .card-header { padding: 20px 18px 0; }
     .kpi-card { padding: 20px; }
@@ -236,6 +248,23 @@
         > .btn { width: 100%; }
     }
 
+    .last-session-card__hero {
+        flex-direction: column;
+        align-items: stretch;
+
+        > .btn { width: 100%; }
+    }
+
+    // Writer above title, the button beside them.
+    .last-session-card__story {
+        grid-template-columns: minmax(0, 1fr) auto;
+
+        .last-session-card__title { grid-column: 1; grid-row: 2; }
+        .last-session-card__read { grid-column: 2; grid-row: 1 / span 2; }
+    }
+
+    .last-session-card__all { width: 100%; }
+
     .card-header {
         flex-direction: column;
         align-items: flex-start;
@@ -258,6 +287,12 @@
     }
 
     .rotation__hint { text-align: left; }
+
+    // The accordion title keeps its chevron on the same line.
+    .rotation__toggle {
+        flex-direction: row;
+        align-items: center;
+    }
 
     .new-session-card__headline { font-size: 36px; }
     .new-session-card__word { font-size: 48px; }

@@ -8,11 +8,15 @@ const props = defineProps<{
     selectorId: number | null;
     /** Let the plume in turn hand the word over to the next plume. */
     interactive?: boolean;
+    /** Fold the circle behind its title, closed until the plume opens it. */
+    collapsible?: boolean;
 }>();
 
 const emit = defineEmits<{ (e: 'hand-off', plume: User): void }>();
 
 const picked = ref<number | null>(null);
+
+const open = ref(!props.collapsible);
 
 const pickedPlume = computed(() => props.plumes.find(p => p.id === picked.value) ?? null);
 
@@ -36,8 +40,18 @@ const toggle = (plume: User) => {
 
 <template>
     <div class="rotation">
-        <div class="rotation__header">
+        <button
+            v-if="collapsible"
+            class="rotation__header rotation__toggle"
+            :aria-expanded="open"
+            @click="open = !open"
+        >
             <span class="rotation__title">Ordre de rotation</span>
+            <svg class="rotation__chevron" :class="{ 'rotation__chevron--open': open }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+
+        <div v-if="open" class="rotation__header" :class="{ 'rotation__header--folded': collapsible }">
+            <span v-if="!collapsible" class="rotation__title">Ordre de rotation</span>
             <span class="rotation__hint">
                 {{ interactive && successor
                     ? `Cliquez sur ${successor.first_name} pour lui laisser la main.`
@@ -45,7 +59,7 @@ const toggle = (plume: User) => {
             </span>
         </div>
 
-        <div class="rotation__grid">
+        <div v-if="open" class="rotation__grid">
             <component
                 :is="isSelectable(plume) ? 'button' : 'div'"
                 v-for="(plume, index) in plumes"
@@ -65,7 +79,7 @@ const toggle = (plume: User) => {
             </component>
         </div>
 
-        <div v-if="pickedPlume" class="rotation__confirm">
+        <div v-if="open && pickedPlume" class="rotation__confirm">
             <span class="rotation__confirm-text">
                 Laisser la main à <strong>{{ pickedPlume.first_name }} {{ pickedPlume.last_name }}</strong> ?
             </span>

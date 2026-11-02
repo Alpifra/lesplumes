@@ -5,6 +5,7 @@ import HomeView from "@/views/HomeView.vue";
 import SessionsView from "@/views/SessionsView.vue";
 import SessionDetailView from "@/views/SessionDetailView.vue";
 import PlumesView from "@/views/PlumesView.vue";
+import StatsView from "@/views/StatsView.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 const navRoutes: RouteRecordRaw[] = [
@@ -27,6 +28,11 @@ const navRoutes: RouteRecordRaw[] = [
         path: "/les-plumes",
         name: "Les Plumes",
         component: PlumesView,
+    },
+    {
+        path: "/statistiques",
+        name: "Statistiques",
+        component: StatsView,
     },
 ];
 
