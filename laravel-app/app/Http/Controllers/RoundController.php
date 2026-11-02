@@ -6,13 +6,13 @@ use App\Http\Resources\RoundCollection;
 use App\Http\Resources\RoundResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Mail\Invitation;
 use App\Models\Media;
 use App\Models\Round;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -159,6 +159,8 @@ class RoundController extends Controller
 
         $round->participants()->sync($request->participants);
 
+        $round->announceOpening();
+
         return new RoundResource($round);
     }
 
@@ -209,7 +211,12 @@ class RoundController extends Controller
         abort_if($user?->isDeactivated(), 422, "Cette plume n'est plus dans le cercle.");
 
         if ($user) {
-            $round->participants()->syncWithoutDetaching([$user->id]);
+            $attached = $round->participants()->syncWithoutDetaching([$user->id])['attached'];
+
+            // Convened to a session already open: she hears of it like the others did.
+            if ($attached && !$round->isFinished()) {
+                $round->announceOpeningTo($user);
+            }
 
             return response()->json([
                 'status' => 'attached',
@@ -217,15 +224,8 @@ class RoundController extends Controller
             ]);
         }
 
-        Mail::raw(
-            "Vous êtes invité·e à rejoindre le cercle des plumes sur Les Plumes "
-            . "et à participer à la session « {$round->word} ». "
-            . "Créez votre compte pour commencer à écrire.",
-            function ($message) use ($request) {
-                $message->to($request->email)
-                    ->subject('Invitation à rejoindre Les Plumes');
-            }
-        );
+        (new Invitation($request->email, $request->user(), $round->isFinished() ? null : $round))
+            ->deliverTo($request->email);
 
         return response()->json(['status' => 'invited']);
     }

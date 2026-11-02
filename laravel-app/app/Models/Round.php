@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Mail\SessionClosed;
+use App\Mail\SessionOpened;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,8 +40,9 @@ class Round extends Model
      */
     protected $casts = [
         'created_at' => 'datetime',
-        'start_at'   => 'datetime',
-        'end_at'     => 'datetime',
+        'start_at'             => 'datetime',
+        'end_at'               => 'datetime',
+        'closure_announced_at' => 'datetime',
     ];
 
     /**
@@ -117,6 +120,55 @@ class Round extends Model
 
         $this->end_at = now();
         $this->save();
+
+        $this->announceClosure();
+
+        return true;
+    }
+
+    /**
+     * Mail the convened plumes that the session is open.
+     */
+    public function announceOpening(): void
+    {
+        $this->participants()->active()->get()
+            ->each(fn (User $plume) => $this->announceOpeningTo($plume));
+    }
+
+    /**
+     * Mail one plume that the session is open — she was just convened.
+     */
+    public function announceOpeningTo(User $plume): void
+    {
+        (new SessionOpened($this, $plume))->deliverTo($plume->email);
+    }
+
+    /**
+     * Mail the whole session — master and convened plumes, jokers included —
+     * that it is over, once only. Returns whether this call announced it.
+     */
+    public function announceClosure(): bool
+    {
+        if (!$this->isFinished()) {
+            return false;
+        }
+
+        // Claimed atomically, so a deposit and the scheduler never both send it.
+        $claimed = static::whereKey($this->id)
+            ->whereNull('closure_announced_at')
+            ->update(['closure_announced_at' => now()]);
+
+        if (!$claimed) {
+            return false;
+        }
+
+        $this->refresh();
+
+        $this->participants()->active()->get()
+            ->push($this->master)
+            ->filter(fn (?User $plume) => $plume && !$plume->isDeactivated())
+            ->unique('id')
+            ->each(fn (User $plume) => (new SessionClosed($this, $plume))->deliverTo($plume->email));
 
         return true;
     }

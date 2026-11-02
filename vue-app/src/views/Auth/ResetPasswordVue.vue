@@ -39,7 +39,7 @@ const onSubmit = async () => {
         <!-- Form panel -->
         <div class="auth-form-panel">
             <form class="auth-form" @submit.prevent="onSubmit">
-                <p class="auth-form__eyebrow">Une plume oublieuse</p>
+                <p class="auth-form__eyebrow">Un petit oubli</p>
                 <h1 class="auth-form__title">Mot de passe oublié</h1>
 
                 <p class="auth-form__hint">

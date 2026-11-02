@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Mail\Invitation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -43,14 +43,7 @@ class UserController extends Controller
             ]);
         }
 
-        Mail::raw(
-            "Vous êtes invité·e à rejoindre le cercle des plumes sur Les Plumes. "
-            . "Créez votre compte pour participer aux sessions d'écriture.",
-            function ($message) use ($request) {
-                $message->to($request->email)
-                    ->subject('Invitation à rejoindre Les Plumes');
-            }
-        );
+        (new Invitation($request->email, $request->user()))->deliverTo($request->email);
 
         return response()->json(['status' => 'invited']);
     }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\ResetPassword;
 use App\Models\Story;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable
 {
@@ -134,6 +136,18 @@ class User extends Authenticatable
      *
      * A joker is counted in the year it was played, so the quota starts
      * afresh every 1st of January.
+     */
+    /**
+     * Mail the plume the link to choose a new password, in the style of the
+     * circle rather than Laravel's default notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        Mail::to($this->email)->send(new ResetPassword($this, $token));
+    }
+
+    /**
+     * Jokers the plume may still play this calendar year.
      */
     public function jokersLeft(): int
     {
