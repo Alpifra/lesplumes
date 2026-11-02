@@ -43,7 +43,7 @@ const cards = computed<{
     },
     {
         key: 'participations',
-        title: 'Participations',
+        title: 'Participation',
         hint: 'sessions jouées, comme cheffe ou plume ; un joker n\'en est pas une',
         entries: rankings.value.participations,
         value: (e: RankingEntry) => plural(e.value, 'session'),
@@ -51,7 +51,7 @@ const cards = computed<{
     },
     {
         key: 'jokers',
-        title: 'Jokers',
+        title: 'Joker',
         hint: 'jokers posés depuis toujours, le plus sobre en tête',
         entries: rankings.value.jokers,
         value: (e: RankingEntry) => plural(e.value, 'joker'),

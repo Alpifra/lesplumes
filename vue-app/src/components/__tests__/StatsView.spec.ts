@@ -47,7 +47,7 @@ describe('StatsView', () => {
         expect(wrapper.find('[data-ranking="blabla"]').exists()).toBe(false);
 
         const options = wrapper.findAll('.rankings__option');
-        expect(options.map(o => o.text())).toEqual(['Réactivité', 'Participations', 'Jokers', 'Blabla']);
+        expect(options.map(o => o.text())).toEqual(['Réactivité', 'Participation', 'Joker', 'Blabla']);
 
         await options[3].trigger('click');
 
