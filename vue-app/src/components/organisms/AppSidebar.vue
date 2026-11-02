@@ -70,10 +70,14 @@ const activeFamily = computed(() => {
                         <path d="M8 3h9l4 4v14H8z" />
                         <path d="M17 3v4h4M12 13h5M12 17h3" />
                     </template>
-                    <template v-else-if="item.icon === 'plumes'">
-                        <path d="M3 21c3-1 7-4 10-9 3-5 8-8 8-8s-1 6-4 10-8 7-12 9" />
-                        <path d="M3 21 9 15" />
-                    </template>
+                    <!-- Feather, from Lucide (ISC). It fills the whole 24px box where
+                         the other icons span ~18px: scaled down around the center, the
+                         stroke widened back to the same 1.8 (1.8 / 0.85). -->
+                    <g v-else-if="item.icon === 'plumes'" transform="translate(12 12) scale(0.85) translate(-12 -12)" stroke-width="2.12">
+                        <path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z" />
+                        <path d="M16 8 2 22" />
+                        <path d="M17.5 15H9" />
+                    </g>
                     <path v-else-if="item.icon === 'stats'" d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
                 </svg>
                 {{ item.label }}

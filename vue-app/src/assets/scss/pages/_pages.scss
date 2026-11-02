@@ -1218,6 +1218,9 @@
     padding: 24px;
     overflow: hidden;
     position: relative;
+    // The cards of a row share its height: the action sits at the bottom.
+    display: flex;
+    flex-direction: column;
 
     &__star {
         position: absolute;
@@ -1249,6 +1252,8 @@
         display: flex;
         gap: 30px;
         margin-top: 22px;
+        // Least space above the action, when the card is not stretched by its row
+        margin-bottom: 20px;
         padding-top: 18px;
         border-top: 1px dashed variables.$rule;
     }
@@ -1259,6 +1264,12 @@
         font-size: 30px;
         color: variables.$ink;
         line-height: 1;
+
+        &--date {
+            margin-top: 4px;
+            font-size: 18px;
+            text-transform: capitalize;
+        }
     }
 
     &__stat-label {
@@ -1268,20 +1279,22 @@
         margin-top: 2px;
     }
 
+    &__action {
+        width: 100%;
+        margin-top: auto;
+    }
+
     &--invite {
         border: 2px dashed variables.$plume;
         background: variables.$paper;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-        text-align: center;
+        // Keeps the overall size of the other cards despite the thicker border
+        padding: 23px;
     }
 
     &__invite-icon {
-        width: 54px;
-        height: 54px;
+        width: 56px;
+        height: 56px;
+        flex-shrink: 0;
         border-radius: 50%;
         background: variables.$plume-tint;
         display: flex;
@@ -1290,6 +1303,12 @@
         font-size: 32px;
         color: variables.$plume;
         line-height: 1;
+    }
+
+    &__invite-field {
+        flex: 1;
+
+        .field { height: 40px; }
     }
 }
 

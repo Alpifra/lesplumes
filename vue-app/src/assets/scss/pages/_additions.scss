@@ -67,10 +67,9 @@
 
 // Invite feedback message on the plumes page
 .plume-card__invite-feedback {
-    margin-top: 10px;
+    margin: -8px 0 14px;
     font-size: 13px;
     color: variables.$success;
-    text-align: center;
 
     &--error {
         color: variables.$error;

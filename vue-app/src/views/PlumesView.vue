@@ -74,34 +74,38 @@ onMounted(load);
 
                         <div class="plume-card__stats">
                             <div>
-                                <div class="plume-card__stat-value" style="font-size:15px;text-transform:capitalize">{{ memberSince(plume.created_at) }}</div>
-                                <div class="plume-card__stat-label">membre depuis</div>
+                                <div class="plume-card__stat-label">Membre depuis</div>
+                                <div class="plume-card__stat-value plume-card__stat-value--date">{{ memberSince(plume.created_at) }}</div>
                             </div>
                         </div>
 
-                        <a class="btn btn--outline btn--small" style="width:100%" :href="`mailto:${plume.email}`">Contacter</a>
+                        <a class="btn btn--outline btn--small plume-card__action" :href="`mailto:${plume.email}`">Contacter</a>
                     </div>
 
-                    <!-- Invite card -->
-                    <div class="card plume-card plume-card--invite">
-                        <div class="plume-card__invite-icon">+</div>
-                        <div class="plume-card__name" style="margin-top:12px">Inviter une plume</div>
-                        <p class="plume-card__stat-label" style="margin-top:4px;max-width:240px;text-align:center">Envoyez une invitation à rejoindre le cercle des plumes.</p>
+                    <!-- Invite card: same layout as a plume card -->
+                    <form class="card plume-card plume-card--invite" @submit.prevent="invite">
+                        <div class="plume-card__identity">
+                            <span class="plume-card__invite-icon">+</span>
+                            <div>
+                                <div class="plume-card__name">Inviter une plume</div>
+                                <div class="plume-card__role">à rejoindre le cercle</div>
+                            </div>
+                        </div>
 
-                        <input
-                            v-model="inviteEmail"
-                            class="field"
-                            type="email"
-                            placeholder="email@exemple.fr"
-                            style="margin-top:14px;text-align:center"
-                            @keyup.enter="invite"
-                        />
-                        <button class="btn btn--primary btn--small" style="margin-top:10px" :disabled="inviting" @click="invite">
-                            {{ inviting ? 'Envoi…' : 'Inviter' }}
-                        </button>
+                        <div class="plume-card__stats">
+                            <label class="field-label plume-card__invite-field">
+                                Email
+                                <input v-model="inviteEmail" class="field" type="email" placeholder="email@exemple.fr" />
+                            </label>
+                        </div>
+
                         <p v-if="inviteMessage" class="plume-card__invite-feedback">{{ inviteMessage }}</p>
                         <p v-if="inviteError" class="plume-card__invite-feedback plume-card__invite-feedback--error">{{ inviteError }}</p>
-                    </div>
+
+                        <button type="submit" class="btn btn--primary btn--small plume-card__action" :disabled="inviting">
+                            {{ inviting ? 'Envoi…' : 'Inviter' }}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
