@@ -33,6 +33,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Fails fast, naming what is missing in the GitHub environment
+      - name: Check the configuration
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          VITE_APPLICATION_NAME: ${{ vars.VITE_APPLICATION_NAME }}
+          VITE_APPLICATION_ENDPOINT: ${{ vars.VITE_APPLICATION_ENDPOINT }}
+          VITE_API_ENDPOINT: ${{ vars.VITE_API_ENDPOINT }}
+        run: |
+          missing=0
+          for name in SSH_PRIVATE_KEY SSH_KNOWN_HOSTS SSH_HOST SSH_USER; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name is not set (Settings → Environments → Environment secrets)"
+              missing=1
+            fi
+          done
+          for name in APP_PATH VITE_APPLICATION_NAME VITE_APPLICATION_ENDPOINT VITE_API_ENDPOINT; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Variable $name is not set (Settings → Environments → Environment variables, not secrets)"
+              missing=1
+            fi
+          done
+          exit $missing
+
       # —— Build ————————————————————————————————————————————————————————————
       - uses: shivammathur/setup-php@v2
         with:
@@ -88,6 +114,8 @@ jobs:
 
       - name: Check the server is ready
         run: |
+          ssh server true \
+            || { echo "::error::Cannot connect over SSH, check SSH_HOST, SSH_USER, SSH_PORT, SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS"; exit 1; }
           ssh server "test -f '$APP_PATH/.env'" \
             || { echo "::error::$APP_PATH/.env is missing on the server, create it first"; exit 1; }
 
