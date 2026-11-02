@@ -7,6 +7,8 @@ use App\Models\Round;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StoryTest extends TestCase
@@ -14,11 +16,9 @@ class StoryTest extends TestCase
 
     use RefreshDatabase;
 
-    /**
-     * @test
-     * @group model
-     * @group story
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('story')]
     public function create_model()
     {
         $story = new Story;
@@ -39,11 +39,9 @@ class StoryTest extends TestCase
         self::assertNotNull($story->updated_at);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group story
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('story')]
     public function edit_model()
     {
         Story::factory(1)
@@ -66,11 +64,9 @@ class StoryTest extends TestCase
         self::assertNotNull($story->created_at);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group story
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('story')]
     public function delete_model()
     {
         Story::factory(1)

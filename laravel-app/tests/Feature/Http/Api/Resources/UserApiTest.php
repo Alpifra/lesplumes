@@ -7,6 +7,8 @@ use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserApiTest extends TestCase
@@ -31,11 +33,11 @@ class UserApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group user
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('user')]
     public function get_user_collection(): void
     {
         $user = User::factory()->create();
@@ -52,12 +54,10 @@ class UserApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('user')]
     public function get_user(): void
     {
         $user = User::factory()->create();
@@ -72,12 +72,10 @@ class UserApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('user')]
     public function a_user_can_read_another_plume(): void
     {
         $user = User::factory()->create();
@@ -89,12 +87,10 @@ class UserApiTest extends TestCase
             ->assertJsonPath('data.id', $other->id);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPatch
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPatch')]
+    #[Group('user')]
     public function patch_user(): void
     {
         $user = User::factory()->create();
@@ -120,12 +116,10 @@ class UserApiTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('user')]
     public function delete_user()
     {
         $user = User::factory()->create();
@@ -138,12 +132,10 @@ class UserApiTest extends TestCase
         self::assertTrue($user->fresh()->isDeactivated());
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('user')]
     public function closing_an_account_keeps_the_plume_texts(): void
     {
         $user = User::factory()->create();
@@ -158,12 +150,10 @@ class UserApiTest extends TestCase
         self::assertNotNull($story->fresh()->media);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('user')]
     public function the_user_list_leaves_deactivated_plumes_out(): void
     {
         $user = User::factory()->create();
@@ -184,12 +174,10 @@ class UserApiTest extends TestCase
         self::assertNotContains($gone->id, $ids);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group user
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('user')]
+    #[Group('security')]
     public function a_deactivated_plume_still_logged_in_is_turned_away(): void
     {
         $user = User::factory()->create();
@@ -200,11 +188,9 @@ class UserApiTest extends TestCase
             ->assertStatus(401);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('user')]
     public function a_user_cannot_patch_or_delete_another_plume(): void
     {
         $user = User::factory()->create();

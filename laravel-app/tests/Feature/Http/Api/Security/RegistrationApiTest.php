@@ -4,6 +4,8 @@ namespace Tests\Feature\Http\Api\Security;
 
 use App\Mail\Invitation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RegistrationApiTest extends TestCase
@@ -23,11 +25,9 @@ class RegistrationApiTest extends TestCase
         ], $overrides));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('security')]
     public function an_invited_person_can_sign_up(): void
     {
         $this->signUp()->assertSuccessful();
@@ -36,11 +36,9 @@ class RegistrationApiTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    /**
-     * @test
-     * @group api
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('security')]
     public function nobody_can_sign_up_without_an_invitation(): void
     {
         $this->signUp(['invitation' => null])
@@ -51,11 +49,9 @@ class RegistrationApiTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     * @test
-     * @group api
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('security')]
     public function an_invitation_only_works_for_its_own_email(): void
     {
         $this->signUp(['email' => 'autre@lesplumes.test'])
@@ -69,11 +65,9 @@ class RegistrationApiTest extends TestCase
         $this->assertDatabaseCount('users', 0);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('security')]
     public function the_invitation_ignores_the_case_of_the_email(): void
     {
         $this->signUp(['email' => 'Jeanne@LesPlumes.test'])->assertSuccessful();

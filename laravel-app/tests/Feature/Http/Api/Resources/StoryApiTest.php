@@ -7,6 +7,8 @@ use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StoryApiTest extends TestCase
@@ -28,11 +30,11 @@ class StoryApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group story
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('story')]
     public function get_story_collection(): void
     {
         $user = User::factory()->create();
@@ -53,12 +55,10 @@ class StoryApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('story')]
     public function get_story(): void
     {
         $user = User::factory()->create();
@@ -79,12 +79,10 @@ class StoryApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('story')]
     public function an_outsider_cannot_read_the_texts_of_a_round(): void
     {
         $intruder = User::factory()->create();
@@ -101,12 +99,10 @@ class StoryApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('story')]
     public function delete_story()
     {
         $story = Story::factory()->create();
@@ -117,12 +113,10 @@ class StoryApiTest extends TestCase
         $response->assertStatus(204);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('story')]
     public function only_the_author_can_delete_a_text(): void
     {
         $story = Story::factory()->create();

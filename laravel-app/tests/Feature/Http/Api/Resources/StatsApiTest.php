@@ -8,6 +8,8 @@ use App\Models\Story;
 use App\Models\User;
 use Database\Factories\MediaFactory;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StatsApiTest extends TestCase
@@ -27,10 +29,10 @@ class StatsApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group stats
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('stats')]
     public function texts_are_counted_month_by_month_over_a_year(): void
     {
         $user = User::factory()->create();

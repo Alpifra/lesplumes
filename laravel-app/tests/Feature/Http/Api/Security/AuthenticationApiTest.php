@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuthenticationApiTest extends TestCase
@@ -14,13 +16,11 @@ class AuthenticationApiTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group user
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('user')]
+    #[Group('security')]
     public function user_can_login_with_success(): void
     {
         $this->refreshDatabase();
@@ -34,13 +34,11 @@ class AuthenticationApiTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group user
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('user')]
+    #[Group('security')]
     public function user_cannot_login_with_wrong_credentials(): void
     {
         $response = $this->postJson('/api/login', [
@@ -58,13 +56,11 @@ class AuthenticationApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group user
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('user')]
+    #[Group('security')]
     public function a_deactivated_plume_cannot_login(): void
     {
         $user = User::factory()->create();
@@ -80,13 +76,11 @@ class AuthenticationApiTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group user
-     * @group security
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('user')]
+    #[Group('security')]
     public function a_deactivated_account_is_not_revealed_without_its_password(): void
     {
         $user = User::factory()->create();

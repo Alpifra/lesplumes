@@ -6,6 +6,8 @@ use App\Models\Round;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoundTest extends TestCase
@@ -13,11 +15,9 @@ class RoundTest extends TestCase
 
     use RefreshDatabase;
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function create_model()
     {
         $round = new Round;
@@ -41,11 +41,9 @@ class RoundTest extends TestCase
         self::assertNotNull($round->created_at);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function edit_model()
     {
         Round::factory(1)->create();
@@ -70,11 +68,9 @@ class RoundTest extends TestCase
         self::assertContains($participants->random()->id, $participantsId);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function delete_model()
     {
         Round::factory(1)
@@ -105,10 +101,10 @@ class RoundTest extends TestCase
     }
 
     /**
-     * @test
-     * @group model
-     * @group round
      */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_opens_the_circle_on_the_first_plume()
     {
         self::assertNull(Round::nextSelector());
@@ -118,11 +114,9 @@ class RoundTest extends TestCase
         self::assertEquals($auguste->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_follows_the_circle_in_alphabetical_order()
     {
         ['auguste' => $auguste, 'camille' => $camille] = $this->circle();
@@ -132,11 +126,9 @@ class RoundTest extends TestCase
         self::assertEquals($camille->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_ignores_accents_and_case()
     {
         $emile = User::factory()->create(['first_name' => 'émile', 'last_name' => 'Roux']);
@@ -150,11 +142,9 @@ class RoundTest extends TestCase
         self::assertEquals($fanny->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_orders_namesakes_by_last_name()
     {
         $martin = User::factory()->create(['first_name' => 'Léa', 'last_name' => 'Martin']);
@@ -165,11 +155,9 @@ class RoundTest extends TestCase
         self::assertEquals($martin->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_starts_over_after_the_last_plume()
     {
         ['auguste' => $auguste, 'jeanne' => $jeanne] = $this->circle();
@@ -179,11 +167,9 @@ class RoundTest extends TestCase
         self::assertEquals($auguste->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_honours_a_hand_off()
     {
         ['auguste' => $auguste, 'jeanne' => $jeanne] = $this->circle();
@@ -196,11 +182,9 @@ class RoundTest extends TestCase
         self::assertEquals($jeanne->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_opens_the_circle_on_the_first_active_plume()
     {
         ['auguste' => $auguste, 'camille' => $camille] = $this->circle();
@@ -209,11 +193,9 @@ class RoundTest extends TestCase
         self::assertEquals($camille->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_skips_a_deactivated_plume()
     {
         ['auguste' => $auguste, 'camille' => $camille, 'jeanne' => $jeanne] = $this->circle();
@@ -224,11 +206,9 @@ class RoundTest extends TestCase
         self::assertEquals($jeanne->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_resumes_after_a_deactivated_master()
     {
         ['camille' => $camille, 'jeanne' => $jeanne] = $this->circle();
@@ -239,11 +219,9 @@ class RoundTest extends TestCase
         self::assertEquals($jeanne->id, Round::nextSelector()->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group round
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
     public function next_selector_voids_a_hand_off_to_a_deactivated_plume()
     {
         ['auguste' => $auguste, 'camille' => $camille, 'jeanne' => $jeanne] = $this->circle();

@@ -13,6 +13,8 @@ use App\Models\User;
 use Database\Factories\MediaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MailsTest extends TestCase
@@ -26,10 +28,8 @@ class MailsTest extends TestCase
         Mail::fake();
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function opening_a_session_mails_each_convened_plume(): void
     {
         $master = User::factory()->create();
@@ -49,10 +49,8 @@ class MailsTest extends TestCase
         Mail::assertNotSent(SessionOpened::class, fn ($mail) => $mail->hasTo($master->email));
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function the_last_deposit_announces_the_end_to_the_whole_session_once(): void
     {
         [$writer, $joker] = User::factory(2)->create();
@@ -80,10 +78,8 @@ class MailsTest extends TestCase
         Mail::assertSent(SessionClosed::class, 3);
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function a_session_reaching_its_deadline_is_announced_by_the_scheduler(): void
     {
         $due = Round::factory()->create(['start_at' => now()->subWeek(), 'end_at' => now()->subMinute()]);
@@ -100,10 +96,8 @@ class MailsTest extends TestCase
         $this->assertNotNull($due->fresh()->closure_announced_at);
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function an_outsider_is_invited_by_mail(): void
     {
         $inviter = User::factory()->create();
@@ -120,10 +114,8 @@ class MailsTest extends TestCase
         });
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function a_forgotten_password_mails_a_link_to_the_front(): void
     {
         $plume = User::factory()->create();
@@ -137,10 +129,8 @@ class MailsTest extends TestCase
         });
     }
 
-    /**
-     * @test
-     * @group mail
-     */
+    #[Test]
+    #[Group('mail')]
     public function every_mail_renders_in_the_style_of_the_circle(): void
     {
         $plume = User::factory()->create(['first_name' => 'Jeanne']);

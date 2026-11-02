@@ -9,6 +9,8 @@ use App\Models\User;
 use Database\Factories\MediaFactory;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MediaApiTest extends TestCase
@@ -32,12 +34,12 @@ class MediaApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group story
-     * @group media
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('story')]
+    #[Group('media')]
     public function get_media(): void
     {
         $user = User::factory()->create();
@@ -58,13 +60,11 @@ class MediaApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group story
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('story')]
+    #[Group('media')]
     public function post_media()
     {
         $user = User::factory()->create();
@@ -90,13 +90,11 @@ class MediaApiTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPatch
-     * @group story
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPatch')]
+    #[Group('story')]
+    #[Group('media')]
     public function patch_media()
     {
         $user = User::factory()->create();
@@ -122,12 +120,10 @@ class MediaApiTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('media')]
     public function delete_media()
     {
         $user = User::factory()->create();
@@ -141,11 +137,9 @@ class MediaApiTest extends TestCase
         $response->assertStatus(204);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('media')]
     public function only_the_author_can_replace_or_delete_a_media(): void
     {
         $round = Round::factory()->create([
@@ -169,11 +163,9 @@ class MediaApiTest extends TestCase
         $this->assertDatabaseHas('medias', ['id' => $story->media->id]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('media')]
     public function an_outsider_cannot_read_a_media(): void
     {
         $intruder = User::factory()->create();

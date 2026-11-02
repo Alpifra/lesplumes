@@ -7,6 +7,8 @@ use App\Models\Round;
 use App\Models\Story;
 use App\Models\User;
 use Database\Factories\MediaFactory;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoundActionsApiTest extends TestCase
@@ -37,10 +39,10 @@ class RoundActionsApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group story
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('story')]
     public function participant_can_deposit_a_plume_on_an_active_round(): void
     {
         $user = User::factory()->create();
@@ -63,11 +65,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('story')]
     public function deposit_is_blocked_on_a_finished_round(): void
     {
         $user = User::factory()->create();
@@ -83,11 +83,9 @@ class RoundActionsApiTest extends TestCase
         $this->assertDatabaseMissing('stories', ['round_id' => $round->id]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group story
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('story')]
     public function a_non_participant_cannot_deposit(): void
     {
         $user = User::factory()->create();
@@ -101,11 +99,9 @@ class RoundActionsApiTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group media
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('media')]
     public function a_story_pdf_can_be_downloaded_once_the_round_is_over(): void
     {
         $user = User::factory()->create();
@@ -121,11 +117,9 @@ class RoundActionsApiTest extends TestCase
         $this->assertEquals('application/pdf', $response->headers->get('content-type'));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function a_round_can_be_downloaded_as_a_zip_once_it_is_over(): void
     {
         $user = User::factory()->create();
@@ -140,11 +134,9 @@ class RoundActionsApiTest extends TestCase
         $this->assertStringContainsString('zip', strtolower($response->headers->get('content-type')));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function an_outsider_cannot_download_a_round(): void
     {
         $intruder = User::factory()->create();
@@ -161,11 +153,9 @@ class RoundActionsApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function master_can_invite_an_existing_user_as_participant(): void
     {
         $master = User::factory()->create();
@@ -184,11 +174,9 @@ class RoundActionsApiTest extends TestCase
         $this->assertTrue($round->participants()->where('users.id', $invitee->id)->exists());
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function inviting_an_unknown_email_returns_invited_status(): void
     {
         $master = User::factory()->create();
@@ -201,11 +189,9 @@ class RoundActionsApiTest extends TestCase
         $response->assertStatus(200)->assertJsonPath('status', 'invited');
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function only_the_master_can_invite(): void
     {
         $round = Round::factory()->create();
@@ -218,11 +204,9 @@ class RoundActionsApiTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('user')]
     public function a_global_invitation_reports_an_existing_member(): void
     {
         $inviter = User::factory()->create();
@@ -235,11 +219,9 @@ class RoundActionsApiTest extends TestCase
         $response->assertStatus(200)->assertJsonPath('status', 'exists');
     }
 
-    /**
-     * @test
-     * @group api
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('user')]
     public function a_global_invitation_to_an_unknown_email_is_sent(): void
     {
         $inviter = User::factory()->create();
@@ -254,11 +236,10 @@ class RoundActionsApiTest extends TestCase
     /**
      * The master of the round never writes here, which is the point: the
      * session closes on the participants alone.
-     *
-     * @test
-     * @group api
-     * @group round
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function a_session_closes_once_every_plume_has_handed_in(): void
     {
         $first = User::factory()->create();
@@ -284,11 +265,9 @@ class RoundActionsApiTest extends TestCase
         self::assertSame('termine', $round->status);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function a_closed_session_refuses_any_further_deposit(): void
     {
         $plume = User::factory()->create();
@@ -338,10 +317,10 @@ class RoundActionsApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group round
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_next_session_names_the_plume_whose_turn_it_is(): void
     {
         $plume = User::factory()->create();
@@ -354,11 +333,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonStructure(['data' => ['selector', 'plumes' => ['data'], 'previous_round']]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_plume_in_turn_can_hand_the_word_over(): void
     {
         [$plume, $successor] = $this->neighbours(2);
@@ -374,11 +351,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function handing_the_word_over_is_refused_to_a_plume_whose_turn_it_is_not(): void
     {
         $plume = User::factory()->create();
@@ -394,11 +369,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_next_session_leaves_deactivated_plumes_out_of_the_circle(): void
     {
         $plume = User::factory()->create();
@@ -414,11 +387,9 @@ class RoundActionsApiTest extends TestCase
         self::assertNotContains($gone->id, $plumes);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function handing_the_word_over_to_a_deactivated_plume_is_refused(): void
     {
         $plume = User::factory()->create();
@@ -436,11 +407,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function a_session_cannot_be_opened_with_a_deactivated_plume(): void
     {
         $plume = User::factory()->create();
@@ -459,11 +428,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonValidationErrors(['participants.1']);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function a_deactivated_plume_cannot_be_invited_to_a_session(): void
     {
         $round = $this->activeRound();
@@ -476,11 +443,9 @@ class RoundActionsApiTest extends TestCase
         self::assertFalse($round->participants()->where('users.id', $gone->id)->exists());
     }
 
-    /**
-     * @test
-     * @group api
-     * @group user
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('user')]
     public function a_global_invitation_reports_a_deactivated_member(): void
     {
         $user = User::factory()->create();
@@ -492,11 +457,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonPath('status', 'deactivated');
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_word_only_passes_to_the_next_plume(): void
     {
         [$plume, , $further] = $this->neighbours(3);
@@ -511,11 +474,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_word_can_be_passed_on_along_the_circle(): void
     {
         [$plume, $successor, $third] = $this->neighbours(3);
@@ -533,11 +494,9 @@ class RoundActionsApiTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function the_next_session_lists_the_circle_in_rotation_order(): void
     {
         [$plume, $successor, $third] = $this->neighbours(3);
@@ -563,10 +522,10 @@ class RoundActionsApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group joker
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function the_texts_of_others_stay_closed_until_the_round_is_over(): void
     {
         [$user, $round] = $this->convened($this->activeRound());
@@ -582,11 +541,9 @@ class RoundActionsApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function a_plume_reads_her_own_text_while_the_round_is_open(): void
     {
         [$user, $round] = $this->convened($this->activeRound());
@@ -598,11 +555,9 @@ class RoundActionsApiTest extends TestCase
             ->assertStatus(200);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function a_participant_can_play_a_joker(): void
     {
         [$user, $round] = $this->convened();
@@ -620,11 +575,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonPath('data.jokers_per_year', Round::JOKERS_PER_YEAR);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function a_joker_counts_as_handed_in_and_may_close_the_round(): void
     {
         [$writer, $round] = $this->convened();
@@ -646,11 +599,9 @@ class RoundActionsApiTest extends TestCase
             ->assertStatus(200);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function jokers_are_capped_per_calendar_year(): void
     {
         [$user] = $this->convened();
@@ -674,11 +625,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonPath('message', 'Vous avez déjà posé vos ' . Round::JOKERS_PER_YEAR . ' jokers cette année.');
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function a_joker_needs_an_open_round_and_a_convened_plume(): void
     {
         [$user, $round] = $this->convened($this->finishedRound());
@@ -691,11 +640,9 @@ class RoundActionsApiTest extends TestCase
         $this->actingAs($round->master)->postJson("/api/rounds/{$round->id}/joker")->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function no_joker_once_the_text_is_handed_in(): void
     {
         [$user, $round] = $this->convened();
@@ -710,11 +657,9 @@ class RoundActionsApiTest extends TestCase
             ->assertJsonPath('message', 'Votre texte est déjà rendu.');
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function handing_a_text_in_withdraws_the_joker(): void
     {
         [$user, $round] = $this->convened();
@@ -730,11 +675,9 @@ class RoundActionsApiTest extends TestCase
         $this->assertSame(Round::JOKERS_PER_YEAR, $user->jokersLeft());
     }
 
-    /**
-     * @test
-     * @group api
-     * @group joker
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('joker')]
     public function a_joker_can_be_taken_back_while_the_round_is_open(): void
     {
         [$user, $round] = $this->convened();

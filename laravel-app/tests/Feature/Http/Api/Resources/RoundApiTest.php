@@ -6,6 +6,8 @@ use App\Models\Round;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoundApiTest extends TestCase
@@ -29,11 +31,11 @@ class RoundApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group round
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('round')]
     public function get_round_collection(): void
     {
         $user = User::factory()->create();
@@ -54,12 +56,10 @@ class RoundApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('round')]
     public function round_collection_only_returns_the_rounds_of_the_authenticated_user(): void
     {
         $user = User::factory()->create();
@@ -84,12 +84,10 @@ class RoundApiTest extends TestCase
         $this->assertSame(2, $response->json('meta.total'));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('round')]
     public function get_round(): void
     {
         $user = User::factory()->create();
@@ -108,12 +106,10 @@ class RoundApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiGet
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiGet')]
+    #[Group('round')]
     public function an_outsider_cannot_get_a_round(): void
     {
         $intruder = User::factory()->create();
@@ -126,12 +122,10 @@ class RoundApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('round')]
     public function post_round(): void
     {
         $user = User::factory()->create();
@@ -160,12 +154,10 @@ class RoundApiTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPost
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPost')]
+    #[Group('round')]
     public function post_round_is_refused_to_a_plume_whose_turn_it_is_not(): void
     {
         $user = User::factory()->create();
@@ -183,12 +175,10 @@ class RoundApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiPatch
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiPatch')]
+    #[Group('round')]
     public function patch_round(): void
     {
         $user = User::factory()->create();
@@ -219,12 +209,10 @@ class RoundApiTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group apiDelete
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('apiDelete')]
+    #[Group('round')]
     public function delete_round()
     {
         $user = User::factory()->create();
@@ -236,11 +224,9 @@ class RoundApiTest extends TestCase
         $response->assertStatus(204);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group round
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('round')]
     public function only_the_master_can_patch_or_delete_a_round(): void
     {
         $participant = User::factory()->create();

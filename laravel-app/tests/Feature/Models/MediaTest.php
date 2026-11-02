@@ -7,6 +7,8 @@ use App\Models\Story;
 use Database\Factories\MediaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MediaTest extends TestCase
@@ -14,11 +16,9 @@ class MediaTest extends TestCase
 
     use RefreshDatabase;
 
-    /**
-     * @test
-     * @group model
-     * @group media
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('media')]
     public function create_model()
     {
         $media = new Media;
@@ -62,11 +62,9 @@ class MediaTest extends TestCase
         self::assertEquals($story->id, $media->story->id);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group media
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('media')]
     public function edit_model()
     {
         $media = Media::factory()->createOne();
@@ -105,11 +103,9 @@ class MediaTest extends TestCase
         self::assertContains($media->disk, $allowed_disks);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group media
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('media')]
     public function delete_model()
     {
         $media = Media::factory()

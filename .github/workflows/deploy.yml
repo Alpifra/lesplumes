@@ -1,0 +1,127 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target server
+        type: choice
+        options: [staging, production]
+        default: staging
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }})
+    needs: ci
+    runs-on: ubuntu-latest
+    # Secrets and variables are read from this GitHub environment
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+    concurrency:
+      group: deploy-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+      cancel-in-progress: false
+
+    env:
+      # Laravel folder; the domain's document root points to its public/ subfolder
+      APP_PATH: ${{ vars.APP_PATH }}
+      PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # —— Build ————————————————————————————————————————————————————————————
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_mysql, gd, zip, fileinfo
+          coverage: none
+
+      - name: Install Composer dependencies (no dev)
+        working-directory: laravel-app
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vue-app/package-lock.json
+
+      - name: Build the Vue app
+        working-directory: vue-app
+        env:
+          VITE_APPLICATION_NAME: ${{ vars.VITE_APPLICATION_NAME }}
+          VITE_APPLICATION_ENDPOINT: ${{ vars.VITE_APPLICATION_ENDPOINT }}
+          VITE_API_ENDPOINT: ${{ vars.VITE_API_ENDPOINT }}
+        run: |
+          npm ci
+          npm run build-only
+
+      # API and front share the same document root: Laravel's public/
+      - name: Put the Vue app in Laravel's public folder
+        run: cp -R vue-app/dist/. laravel-app/public/
+
+      # —— SSH ——————————————————————————————————————————————————————————————
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host server
+            HostName $SSH_HOST
+            User $SSH_USER
+            Port $SSH_PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+          EOF
+
+      - name: Check the server is ready
+        run: |
+          ssh server "test -f '$APP_PATH/.env'" \
+            || { echo "::error::$APP_PATH/.env is missing on the server, create it first"; exit 1; }
+
+      # —— Deploy ———————————————————————————————————————————————————————————
+      - name: Put the API in maintenance mode
+        run: ssh server "cd '$APP_PATH' && $PHP_BIN artisan down --retry=15 || true"
+
+      # .env and storage/ (uploaded texts, logs, sessions) live on the server only
+      - name: Upload the app
+        run: |
+          rsync -az --delete \
+            --exclude='/.env' \
+            --exclude='/.env.*' \
+            --exclude='/storage/' \
+            --exclude='/public/storage' \
+            --exclude='/tests/' \
+            --exclude='/phpunit.xml' \
+            --exclude='/phpstan.neon' \
+            --exclude='/.phpunit*' \
+            --exclude='/node_modules/' \
+            laravel-app/ "server:$APP_PATH/"
+
+      - name: Migrate and cache
+        run: |
+          ssh server sh -se <<EOF
+            cd '$APP_PATH'
+            mkdir -p storage/app/public storage/app/uploads \
+              storage/framework/cache/data storage/framework/sessions storage/framework/views \
+              storage/logs
+            $PHP_BIN artisan migrate --force
+            $PHP_BIN artisan storage:link || true
+            $PHP_BIN artisan optimize
+          EOF
+
+      - name: Leave maintenance mode
+        if: always()
+        run: ssh server "cd '$APP_PATH' && $PHP_BIN artisan up" || true

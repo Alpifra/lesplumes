@@ -16,15 +16,14 @@ Run `make` to see all Makefile commands.
 1. Run `make db` to create and migrate to the last database version
 2. Run `make seed` to seed database with automaticly generated fake data
 
-## Deploy on dev server
+## Deploy
 
-1. Run `make dev` to deploy new file to the application
-2. Go to [dev.lesplumes.fr](https://dev.lesplumes.fr)
+Deployments run with GitHub Actions (`.github/workflows/deploy.yml`), after the tests pass:
 
-## Deploy on production server
+- every push on `master` deploys to production ([lesplumes.fr](https://lesplumes.fr))
+- the "Deploy" workflow can be run by hand from the Actions tab to deploy to staging ([dev.lesplumes.fr](https://dev.lesplumes.fr)) or production
 
-1. Run `make production` to deploy new file to the application
-2. Go to [lesplumes.fr](https://lesplumes.fr)
+Secrets and variables are set in the `production` and `staging` GitHub environments. The Laravel `.env` and `storage/` stay on the server and are never overwritten.
 
 ## Credits
 

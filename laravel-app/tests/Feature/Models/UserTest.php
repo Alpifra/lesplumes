@@ -5,6 +5,8 @@ namespace Tests\Feature\Models;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -12,11 +14,9 @@ class UserTest extends TestCase
 
     use RefreshDatabase;
 
-    /**
-     * @test
-     * @group model
-     * @group user
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('user')]
     public function create_model()
     {
         $user = new User;
@@ -34,11 +34,9 @@ class UserTest extends TestCase
         self::assertCount(1, User::all());
     }
 
-    /**
-     * @test
-     * @group model
-     * @group user
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('user')]
     public function edit_model()
     {
         User::factory(1)->create();
@@ -66,11 +64,9 @@ class UserTest extends TestCase
         self::assertEquals($password, $user->password);
     }
 
-    /**
-     * @test
-     * @group model
-     * @group user
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('user')]
     public function delete_model()
     {
         User::factory(1)->create();

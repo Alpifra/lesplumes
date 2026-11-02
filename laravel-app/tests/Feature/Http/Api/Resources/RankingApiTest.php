@@ -8,6 +8,8 @@ use App\Models\Story;
 use App\Models\User;
 use Database\Factories\MediaFactory;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RankingApiTest extends TestCase
@@ -45,10 +47,10 @@ class RankingApiTest extends TestCase
     }
 
     /**
-     * @test
-     * @group api
-     * @group rankings
      */
+    #[Test]
+    #[Group('api')]
+    #[Group('rankings')]
     public function the_quickest_plume_comes_first_in_reactivity(): void
     {
         [$slow, $quick, $idle] = User::factory()->count(3)->create();
@@ -63,11 +65,9 @@ class RankingApiTest extends TestCase
         $this->assertSame(2, $ranking[1]['texts']);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group rankings
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('rankings')]
     public function the_wordiest_plume_comes_first_in_blabla(): void
     {
         [$brief, $wordy] = User::factory()->count(2)->create();
@@ -83,11 +83,9 @@ class RankingApiTest extends TestCase
             array_intersect_key($ranking[1], array_flip(['value', 'total', 'texts'])));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group rankings
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('rankings')]
     public function the_plume_with_the_fewest_jokers_comes_first(): void
     {
         [$sparing, $joker, $diligent, $newcomer, $outsider] = User::factory()->count(5)->create();
@@ -112,11 +110,9 @@ class RankingApiTest extends TestCase
         ], array_map(fn ($entry) => ['id' => $entry['plume']['id'], 'value' => $entry['value'], 'sessions' => $entry['sessions']], $ranking));
     }
 
-    /**
-     * @test
-     * @group api
-     * @group rankings
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('rankings')]
     public function the_plume_with_the_most_sessions_comes_first_in_participations(): void
     {
         [$keen, $joker, $gone] = User::factory()->count(3)->create();

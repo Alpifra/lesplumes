@@ -5,6 +5,8 @@ namespace Tests\Feature\Models;
 use App\Models\Round;
 use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WordTest extends TestCase
@@ -37,10 +39,10 @@ class WordTest extends TestCase
     }
 
     /**
-     * @test
-     * @group model
-     * @group word
      */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function draw_takes_a_word_of_the_dictionary(): void
     {
         $this->dictionary(['zinzolin', 'fanfreluche', 'chafouin']);
@@ -48,11 +50,9 @@ class WordTest extends TestCase
         self::assertEmpty(array_diff($this->draws(), ['zinzolin', 'fanfreluche', 'chafouin']));
     }
 
-    /**
-     * @test
-     * @group model
-     * @group word
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function draw_sets_aside_the_words_already_played(): void
     {
         $this->dictionary(['zinzolin', 'fanfreluche', 'chafouin']);
@@ -65,11 +65,10 @@ class WordTest extends TestCase
     /**
      * The plume asks again because the word does not suit her: handing back
      * the same one would read as a broken button.
-     *
-     * @test
-     * @group model
-     * @group word
      */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function draw_never_hands_back_the_word_on_screen(): void
     {
         $this->dictionary(['zinzolin', 'fanfreluche']);
@@ -77,11 +76,9 @@ class WordTest extends TestCase
         self::assertSame(['fanfreluche'], array_unique($this->draws('zinzolin')));
     }
 
-    /**
-     * @test
-     * @group model
-     * @group word
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function draw_repeats_a_played_word_rather_than_handing_back_nothing(): void
     {
         $this->dictionary(['zinzolin']);
@@ -90,11 +87,9 @@ class WordTest extends TestCase
         self::assertSame('zinzolin', Word::draw());
     }
 
-    /**
-     * @test
-     * @group model
-     * @group word
-     */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function draw_has_nothing_to_offer_on_an_empty_dictionary(): void
     {
         $this->dictionary([]);
@@ -105,11 +100,10 @@ class WordTest extends TestCase
     /**
      * MySQL collates without regard for accents, so the dictionary cannot
      * rely on a unique index to keep "âcre" apart from "acre".
-     *
-     * @test
-     * @group model
-     * @group word
      */
+    #[Test]
+    #[Group('model')]
+    #[Group('word')]
     public function the_dictionary_keeps_both_forms_of_an_accented_word(): void
     {
         $this->dictionary(['acre', 'âcre']);

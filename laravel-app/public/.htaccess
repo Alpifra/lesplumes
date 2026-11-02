@@ -14,8 +14,13 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
+    # Send API Requests To Front Controller...
+    RewriteRule ^(api|sanctum)(/|$) index.php [L]
+
+    # Serve The Vue App (built into this folder on deploy) For Anything Else...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteRule ^ index.html [L]
 </IfModule>
+
+DirectoryIndex index.html index.php

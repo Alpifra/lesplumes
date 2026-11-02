@@ -4,6 +4,8 @@ namespace Tests\Feature\Http\Api\Resources;
 
 use App\Models\User;
 use App\Models\Word;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WordApiTest extends TestCase
@@ -22,11 +24,9 @@ class WordApiTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     * @group api
-     * @group word
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('word')]
     public function a_word_is_drawn_for_the_session_to_come(): void
     {
         $response = $this->actingAs(User::factory()->create())
@@ -40,21 +40,17 @@ class WordApiTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @group api
-     * @group word
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('word')]
     public function the_dictionary_is_closed_to_a_visitor(): void
     {
         $this->getJson('/api/words/random')->assertStatus(401);
     }
 
-    /**
-     * @test
-     * @group api
-     * @group word
-     */
+    #[Test]
+    #[Group('api')]
+    #[Group('word')]
     public function an_oversized_exclusion_is_refused(): void
     {
         $this->actingAs(User::factory()->create())
