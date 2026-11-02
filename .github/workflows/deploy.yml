@@ -28,7 +28,8 @@ jobs:
     env:
       # Laravel folder; the domain's document root points to its public/ subfolder
       APP_PATH: ${{ vars.APP_PATH }}
-      PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+      # On Infomaniak, plain `php` is an older version: each one lives in /opt/phpX.Y
+      PHP_BIN: ${{ vars.PHP_BIN || '/opt/php8.5/bin/php' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -92,6 +93,9 @@ jobs:
             || { echo "::error::Cannot connect over SSH, check SSH_HOST, SSH_USER, SSH_PORT, SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS"; exit 1; }
           ssh server "test -f '$APP_PATH/.env'" \
             || { echo "::error::$APP_PATH/.env is missing on the server, create it first"; exit 1; }
+          # Checked before uploading: vendor/ built for 8.5 breaks the site on an older PHP
+          ssh server "$PHP_BIN -r 'exit(PHP_VERSION_ID >= 80500 ? 0 : 1);'" \
+            || { echo "::error::$PHP_BIN is missing or older than PHP 8.5 on the server, set the PHP_BIN variable"; exit 1; }
 
       # —— Deploy ———————————————————————————————————————————————————————————
       - name: Put the API in maintenance mode
