@@ -42,7 +42,7 @@ class MediaFactory extends Factory
 
     public static function createFile(): UploadedFile
     {
-        $fake_pdf = new UploadedFile(storage_path('framework/testing/fake.pdf'), 'fake.pdf');
+        $fake_pdf = new UploadedFile(base_path('tests/fixtures/fake.pdf'), 'fake.pdf');
         $target_disk = Config::get('mediable.default_disk');
         $target_disk_path = Media::STORY_MEDIA_DIRECTORY . '/';
         $filename = uniqid() . '.' . MediableMedia::TYPE_PDF;
