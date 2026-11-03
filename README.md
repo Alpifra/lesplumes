@@ -1,6 +1,6 @@
 # Les Plumes Docker Environment
 
-A [Docker](https://www.docker.com/) developpment environment for the [Les Plumes](https://lesplumes.fr/) plateform, running the [Laravel](https://laravel.com) web framework.
+A [Docker](https://www.docker.com/) developpment environment for the [Les Plumes](https://lesplumes.alexandrechauvin.fr/) plateform, running the [Laravel](https://laravel.com) web framework.
 
 ## Getting Started
 
@@ -20,10 +20,16 @@ Run `make` to see all Makefile commands.
 
 Deployments run with GitHub Actions (`.github/workflows/deploy.yml`), after the tests pass:
 
-- every push on `master` deploys to production ([lesplumes.fr](https://lesplumes.fr))
-- the "Deploy" workflow can be run by hand from the Actions tab to deploy to staging ([dev.lesplumes.fr](https://dev.lesplumes.fr)) or production
+- every push on `master` deploys to production ([lesplumes.alexandrechauvin.fr](https://lesplumes.alexandrechauvin.fr))
+- the "Deploy" workflow can be run by hand from the Actions tab to deploy to staging or production
 
 Secrets and variables are set in the `production` and `staging` GitHub environments. The Laravel `.env` and `storage/` stay on the server and are never overwritten.
+
+The server also needs the Laravel scheduler in its crontab (plain `php` is older than 8.5 on Infomaniak):
+
+```cron
+* * * * * cd ~/sites/lesplumes && /opt/php8.5/bin/php artisan schedule:run >> /dev/null 2>&1
+```
 
 ## Credits
 
