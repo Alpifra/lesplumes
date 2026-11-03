@@ -1,6 +1,7 @@
 import LoginView from "@/views/Auth/LoginView.vue";
 import SignupView from "@/views/Auth/SignupView.vue";
 import ResetPasswordVue from "@/views/Auth/ResetPasswordVue.vue";
+import NewPasswordView from "@/views/Auth/NewPasswordView.vue";
 import HomeView from "@/views/HomeView.vue";
 import SessionsView from "@/views/SessionsView.vue";
 import SessionDetailView from "@/views/SessionDetailView.vue";
@@ -51,6 +52,11 @@ const loginRoutes: RouteRecordRaw[] = [
         path: "/mot-de-passe-oublie",
         name: "Reset Password",
         component: ResetPasswordVue,
+    },
+    {
+        path: "/mot-de-passe/nouveau",
+        name: "New Password",
+        component: NewPasswordView,
     },
 ];
 

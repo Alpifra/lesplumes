@@ -84,6 +84,20 @@ export async function useForgotPassword(email: string) {
     return useFetch('/forgot-password', METHODS.POST, { email }, { 'X-XSRF-TOKEN': token ?? '' });
 }
 
+export interface resetPasswordData {
+    token: string,
+    email: string,
+    password: string,
+    password_confirmation: string,
+}
+
+export async function useResetPassword(data: resetPasswordData) {
+
+    const token = await useXsrfToken();
+
+    return useFetch('/reset-password', METHODS.POST, data, { 'X-XSRF-TOKEN': token ?? '' });
+}
+
 export async function useLogout() {
 
     const token = await useXsrfToken();
