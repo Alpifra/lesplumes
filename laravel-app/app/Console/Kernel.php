@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Sessions reaching their deadline are announced to the circle.
-        $schedule->command('rounds:announce-closures')->everyFiveMinutes();
+        $schedule->command('rounds:announce-closures')->daily();
     }
 
     /**
