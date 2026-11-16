@@ -195,22 +195,24 @@ class Round extends Model
     /**
      * The plume whose turn it is to pick the word of the next session.
      *
-     * The turn travels through the circle in alphabetical order of first
-     * names and starts over at the first plume once the last one has played —
-     * unless the plume in turn handed it over, which the session she closed
-     * records.
+     * The very first session is opened by the founding plume — the first one
+     * who joined, and invited the others. From there the turn travels through
+     * the circle in alphabetical order of first names and starts over at the
+     * first plume once the last one has played — unless the plume in turn
+     * handed it over, which the session she closed records.
      *
      * Deactivated plumes are skipped: they keep their place in the history,
      * not in the circle.
      */
     public static function nextSelector(): ?User
     {
-        $firstPlume = User::active()->inCircleOrder()->first();
         $last = static::mostRecent();
 
         if (!$last) {
-            return $firstPlume;
+            return User::active()->oldest()->orderBy('id')->first();
         }
+
+        $firstPlume = User::active()->inCircleOrder()->first();
 
         // A hand-off to a plume who left since is void: the turn follows the
         // circle as if nobody had handed it over.

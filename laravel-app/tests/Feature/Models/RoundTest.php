@@ -101,15 +101,40 @@ class RoundTest extends TestCase
     }
 
     /**
+     * The founding plume — the first who joined — opens the very first
+     * session, whatever her place in the alphabet.
      */
     #[Test]
     #[Group('model')]
     #[Group('round')]
-    public function next_selector_opens_the_circle_on_the_first_plume()
+    public function next_selector_opens_the_circle_on_the_founding_plume()
     {
         self::assertNull(Round::nextSelector());
 
-        ['auguste' => $auguste] = $this->circle();
+        ['jeanne' => $jeanne] = $this->circle();
+
+        self::assertEquals($jeanne->id, Round::nextSelector()->id);
+    }
+
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
+    public function next_selector_opens_the_circle_on_the_oldest_account_not_the_lowest_id()
+    {
+        ['auguste' => $auguste, 'jeanne' => $jeanne] = $this->circle();
+        $auguste->forceFill(['created_at' => $jeanne->created_at->subDay()])->save();
+
+        self::assertEquals($auguste->id, Round::nextSelector()->id);
+    }
+
+    #[Test]
+    #[Group('model')]
+    #[Group('round')]
+    public function next_selector_resumes_alphabetically_after_the_founding_plume()
+    {
+        ['auguste' => $auguste, 'jeanne' => $jeanne] = $this->circle();
+
+        Round::factory()->create(['master_id' => $jeanne->id]);
 
         self::assertEquals($auguste->id, Round::nextSelector()->id);
     }
@@ -187,10 +212,10 @@ class RoundTest extends TestCase
     #[Group('round')]
     public function next_selector_opens_the_circle_on_the_first_active_plume()
     {
-        ['auguste' => $auguste, 'camille' => $camille] = $this->circle();
-        $auguste->deactivate();
+        ['auguste' => $auguste, 'jeanne' => $jeanne] = $this->circle();
+        $jeanne->deactivate();
 
-        self::assertEquals($camille->id, Round::nextSelector()->id);
+        self::assertEquals($auguste->id, Round::nextSelector()->id);
     }
 
     #[Test]
